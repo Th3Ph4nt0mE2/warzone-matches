@@ -27,10 +27,10 @@ public class Team {
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "TEAM_PLAYER",
                joinColumns = {
-                       @JoinColumn(name = "team_id", referencedColumnName = "ID",
+                       @JoinColumn(name = "team_id", referencedColumnName = "ID_TEAMS",
                                nullable = false, updatable = false)},
                inverseJoinColumns = {
-                       @JoinColumn(name = "player_id", referencedColumnName = "ID",
+                       @JoinColumn(name = "player_id", referencedColumnName = "ID_PLAYERS",
                                nullable = false, updatable = false)})
     private Set<Player> players = new HashSet<>();
 	
