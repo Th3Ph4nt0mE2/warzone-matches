@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "PLAYERS", schema = "WARZONE_MATCHES")
-public class Players {
+public class Player {
 
 	@Id
 	@Column(name = "ID_PLAYERS")
