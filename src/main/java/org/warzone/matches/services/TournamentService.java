@@ -36,7 +36,14 @@ public class TournamentService {
     }
 
     public Tournament saveTournament(Tournament tournament) {
-        tournament.setId(tournament.getId().toUpperCase());
+        String tournamentId = tournament.getId().toUpperCase();
+        tournament.setId(tournamentId);
+
+        // Set creation date only if it's a new tournament
+        if (!tournamentRepository.existsById(tournamentId)) {
+            tournament.setCreationDate(new java.util.Date());
+        }
+
         return tournamentRepository.save(tournament);
     }
 

@@ -1,5 +1,6 @@
 package org.warzone.matches.entities.persistence;
 
+import java.util.Date;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,6 +19,9 @@ public class Tournament {
 
     @Column(name = "STATUS")
     private String status;
+
+    @Column(name = "CREATION_DATE")
+    private Date creationDate;
 
     // Getters and Setters
     public String getId() {
@@ -42,5 +46,13 @@ public class Tournament {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }
