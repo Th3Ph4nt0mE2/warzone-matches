@@ -1,8 +1,10 @@
 package org.warzone.matches.entities.persistence;
 
+import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,6 +24,9 @@ public class Player {
 	@Column(name = "ROLE")
 	private String role;
 	
+    @ManyToMany(mappedBy = "players")
+    private List<Teams> teams;
+
 	public int getIdPlayers() {
 		return idPlayers;
 	}
@@ -52,5 +57,13 @@ public class Player {
 	
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public List<Teams> getTeams() {
+		return teams;
+	}
+
+	public void setTeams(List<Teams> teams) {
+		this.teams = teams;
 	}
 }
