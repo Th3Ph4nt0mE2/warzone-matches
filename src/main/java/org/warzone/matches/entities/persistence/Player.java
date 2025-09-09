@@ -31,7 +31,7 @@ public class Player {
 		return idPlayer;
 	}
 	
-	public void setIdPlayers(int idPlayer) {
+	public void setIdPlayer(int idPlayer) {
 		this.idPlayer = idPlayer;
 	}
 	
