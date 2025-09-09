@@ -6,42 +6,62 @@ import org.warzone.matches.dto.TeamSummaryDTO;
 import org.warzone.matches.entities.persistence.Player;
 import org.warzone.matches.entities.persistence.PlayerMatchStats;
 import org.warzone.matches.entities.persistence.Teams;
+import org.warzone.matches.entities.persistence.Tournament;
 import org.warzone.matches.repositories.PlayerMatchStatsRepository;
+import org.warzone.matches.repositories.TournamentRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class TournamentService {
 
     @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
     private PlayerMatchStatsRepository playerMatchStatsRepository;
 
-    public List<TeamSummaryDTO> getTournamentSummary(String tournamentId) {
-        // Normalize the ID to uppercase to ensure consistency
-        String normalizedTournamentId = tournamentId.toUpperCase();
-        List<PlayerMatchStats> allStats = playerMatchStatsRepository.findByMatch_Tournament(normalizedTournamentId);
+    // CRUD for Tournament
+    public List<Tournament> getAllTournaments() {
+        return tournamentRepository.findAll();
+    }
 
-        // Step 1: Group stats by player and sum their kills
+    public Optional<Tournament> getTournamentById(String id) {
+        return tournamentRepository.findById(id.toUpperCase());
+    }
+
+    public Tournament saveTournament(Tournament tournament) {
+        tournament.setId(tournament.getId().toUpperCase());
+        return tournamentRepository.save(tournament);
+    }
+
+    public void deleteTournament(String id) {
+        tournamentRepository.deleteById(id.toUpperCase());
+    }
+
+    // Summary Logic
+    public List<TeamSummaryDTO> getTournamentSummary(String tournamentId) {
+        String normalizedTournamentId = tournamentId.toUpperCase();
+        List<PlayerMatchStats> allStats = playerMatchStatsRepository.findByMatch_Tournament_Id(normalizedTournamentId);
+
         Map<Player, Long> playerKills = allStats.stream()
                 .collect(Collectors.groupingBy(
                         PlayerMatchStats::getPlayer,
                         Collectors.summingLong(PlayerMatchStats::getKills)
                 ));
 
-        // Step 2: Aggregate player kills into team totals
         Map<Teams, TeamSummaryDTO> teamSummaries = new HashMap<>();
         playerKills.forEach((player, kills) -> {
             player.getTeams().forEach(team -> {
-                // Get or create the DTO for the team
                 TeamSummaryDTO summary = teamSummaries.computeIfAbsent(
                     team,
                     t -> new TeamSummaryDTO(t.getName(), 0L, new ArrayList<>())
                 );
-                // Update the team's total kills and player list
                 summary.setTotalKills(summary.getTotalKills() + kills);
                 if (!summary.getPlayers().contains(player.getName())) {
                     summary.getPlayers().add(player.getName());
@@ -49,7 +69,6 @@ public class TournamentService {
             });
         });
 
-        // Step 3: Convert map to a list and sort by total kills
         return teamSummaries.values().stream()
                 .sorted((s1, s2) -> Long.compare(s2.getTotalKills(), s1.getTotalKills()))
                 .collect(Collectors.toList());

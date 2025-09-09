@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface PlayerMatchStatsRepository extends JpaRepository<PlayerMatchStats, Integer>{
 
-    List<PlayerMatchStats> findByMatch_Tournament(String tournamentId);
+    List<PlayerMatchStats> findByMatch_Tournament_Id(String tournamentId);
 
 }
