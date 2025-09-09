@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "DETAILS", schema = "WARZONE_MATCHES")
+@Table(name = "PLAYER_MATCH_STATS", schema = "WARZONE_MATCHES")
 public class PlayerMatchStats {
 
 	@Id
@@ -16,8 +16,8 @@ public class PlayerMatchStats {
 	@Column(name = "ID_MATCHES")
 	private int idMatches;
 	
-	@Column(name = "ID_PLAYERS")
-	private int idPlayers;
+	@Column(name = "ID_PLAYER")
+	private int idPlayer;
 	
 	@Column(name = "KILLS")
 	private int kills;
@@ -38,12 +38,12 @@ public class PlayerMatchStats {
 		this.idMatches = idMatches;
 	}
 
-	public int getIdPlayers() {
-		return idPlayers;
+	public int getIdPlayer() {
+		return idPlayer;
 	}
 
-	public void setIdPlayers(int idPlayers) {
-		this.idPlayers = idPlayers;
+	public void setIdPlayer(int idPlayer) {
+		this.idPlayer = idPlayer;
 	}
 
 	public int getKills() {

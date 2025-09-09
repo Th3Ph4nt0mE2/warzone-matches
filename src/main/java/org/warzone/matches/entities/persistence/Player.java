@@ -8,12 +8,12 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "PLAYERS", schema = "WARZONE_MATCHES")
+@Table(name = "PLAYER", schema = "WARZONE_MATCHES")
 public class Player {
 
 	@Id
-	@Column(name = "ID_PLAYERS")
-	private int idPlayers;
+	@Column(name = "ID_PLAYER")
+	private int idPlayer;
 	
 	@Column(name = "NAME")
 	private String name;
@@ -27,12 +27,12 @@ public class Player {
     @ManyToMany(mappedBy = "players")
     private List<Teams> teams;
 
-	public int getIdPlayers() {
-		return idPlayers;
+	public int getIdPlayer() {
+		return idPlayer;
 	}
 	
-	public void setIdPlayers(int idPlayers) {
-		this.idPlayers = idPlayers;
+	public void setIdPlayers(int idPlayer) {
+		this.idPlayer = idPlayer;
 	}
 	
 	public String getName() {

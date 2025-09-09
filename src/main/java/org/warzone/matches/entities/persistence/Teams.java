@@ -26,7 +26,7 @@ public class Teams {
     @JoinTable(
         name = "TEAM",
         joinColumns = @JoinColumn(name = "ID_TEAMS"),
-        inverseJoinColumns = @JoinColumn(name = "ID_PLAYERS")
+        inverseJoinColumns = @JoinColumn(name = "ID_PLAYER")
     )
 	private List<Player> players;
 
