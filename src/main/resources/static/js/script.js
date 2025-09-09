@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'register-player-link': document.getElementById('register-player-view'),
     };
 
-    // --- Tournament List and Summary Elements ---
+    // --- Main Content Elements ---
+    const viewTitle = document.getElementById('view-title');
     const tournamentsListUL = document.getElementById('tournaments-list-ul');
     const summaryContent = document.getElementById('summary-content');
 
@@ -31,7 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetView) {
             targetView.style.display = 'block';
             const activeLink = document.getElementById(viewId);
-            if (activeLink) activeLink.classList.add('active');
+            if (activeLink) {
+                activeLink.classList.add('active');
+                // Update the main title based on the link's text
+                viewTitle.textContent = activeLink.textContent;
+            }
         }
     }
 
@@ -69,16 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners for Forms ---
     tournamentForm.addEventListener('submit', (e) => {
         const body = {
-            id: document.getElementById('tournament-id').value,
             name: document.getElementById('tournament-name').value,
-            status: document.getElementById('tournament-status').value,
         };
         handleFormSubmit(e, '/api/tournaments', body);
     });
 
     teamForm.addEventListener('submit', (e) => {
         const body = {
-            idTeams: parseInt(document.getElementById('team-id').value, 10),
             name: document.getElementById('team-name').value,
         };
         handleFormSubmit(e, '/api/teams', body);
@@ -86,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playerForm.addEventListener('submit', (e) => {
         const body = {
-            idPlayer: parseInt(document.getElementById('player-id').value, 10),
             name: document.getElementById('player-name').value,
             nickname: document.getElementById('player-nickname').value,
             role: document.getElementById('player-role').value,
