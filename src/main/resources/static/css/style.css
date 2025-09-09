@@ -3,10 +3,6 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-.list-group-item-action:hover {
-    background-color: #495057; /* Darker hover for dark sidebar */
-}
-
 /* Sidebar Styles */
 #wrapper {
     display: flex;
@@ -17,6 +13,12 @@ body {
     width: 250px;
     background-color: #343a40; /* bg-dark */
     color: white;
+    margin-left: -250px; /* Hidden by default */
+    transition: margin 0.25s ease-out;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0; /* Shown when toggled */
 }
 
 #sidebar-wrapper .sidebar-heading {
@@ -35,9 +37,15 @@ body {
     border: none;
     border-radius: 0;
     padding: 1rem 1.5rem;
+    color: white;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #495057;
 }
 
 #page-content-wrapper {
+    width: 100%;
     flex: 1;
-    padding: 20px;
+    min-width: 0; /* Important for flexbox to not overflow */
 }

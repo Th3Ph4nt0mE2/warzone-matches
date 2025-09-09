@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const teamForm = document.getElementById('register-team-form');
     const playerForm = document.getElementById('register-player-form');
 
+    // --- Sidebar Toggle ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const wrapper = document.getElementById('wrapper');
+    menuToggle.addEventListener('click', () => {
+        wrapper.classList.toggle('toggled');
+    });
+
     // --- View Management ---
     function showView(viewId) {
         // Hide all views
