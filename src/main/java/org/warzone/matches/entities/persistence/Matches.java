@@ -16,7 +16,7 @@ public class Matches {
 	private int idMatches;
 	
 	@Column(name = "TOURNAMENT")
-	private int tournament;
+	private String tournament;
 	
 	@Column(name = "MATCH")
 	private int match;
@@ -39,11 +39,11 @@ public class Matches {
 		this.idMatches = idMatches;
 	}
 	
-	public int getTournament() {
+	public String getTournament() {
 		return tournament;
 	}
 	
-	public void setTournament(int tournament) {
+	public void setTournament(String tournament) {
 		this.tournament = tournament;
 	}
 	
