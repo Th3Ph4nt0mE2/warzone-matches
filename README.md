@@ -30,13 +30,13 @@ This project includes two user interfaces for viewing tournament data.
 ### 1. Plain JavaScript UI
 
 *   **URL:** `http://localhost:8080/index.html`
-*   **Description:** A simple client-side UI built with HTML, CSS, and JavaScript. It uses the `fetch` API to interact with the backend.
+*   **Description:** A simple client-side UI built with HTML, CSS, and JavaScript. It uses the `fetch` API to interact with the backend. This UI supports viewing tournaments and their summaries, as well as registering new tournaments, teams, and players through a navigation menu.
 *   **Source code:** `src/main/resources/static/`
 
 ### 2. Thymeleaf UI
 
 *   **URL:** `http://localhost:8080/view/tournaments`
-*   **Description:** A server-side rendered UI built with Spring Boot and Thymeleaf.
+*   **Description:** A server-side rendered UI built with Spring Boot and Thymeleaf. This UI supports viewing tournaments and their summaries, as well as registering new tournaments, teams, and players through a navigation menu.
 *   **Source code:**
     *   Controller: `src/main/java/org/warzone/matches/controllers/ViewController.java`
     *   Templates: `src/main/resources/templates/`
