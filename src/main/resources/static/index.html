@@ -10,89 +10,82 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="d-flex" id="wrapper">
-        <!-- Sidebar -->
-        <div class="bg-dark border-right" id="sidebar-wrapper">
-            <div class="sidebar-heading">Warzone Manager</div>
-            <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white nav-link active" id="view-tournaments-link">View Tournaments</a>
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white nav-link" id="register-tournament-link">Register Tournament</a>
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white nav-link" id="register-team-link">Register Team</a>
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white nav-link" id="register-player-link">Register Player</a>
-            </div>
-        </div>
-        <!-- /#sidebar-wrapper -->
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <button class="btn btn-primary" id="menu-toggle">☰ Menu</button>
-            </nav>
-            <div class="container-fluid pt-4">
-                <div id="app-content">
-                    <!-- The h1 will be dynamically updated by JS now -->
-                    <h1 class="mb-4" id="view-title">Warzone Tournaments</h1>
-
-                    <!-- Container for the list of tournaments -->
-                    <div id="tournaments-list-view">
-                        <!-- Content is already here from previous steps -->
-                        <h2>Tournaments</h2>
-                        <ul class="list-group" id="tournaments-list-ul"></ul>
-                        <div id="tournament-summary" class="mt-5">
-                            <h2>Tournament Summary</h2>
-                            <div id="summary-content"></div>
-                        </div>
-                    </div>
-
-                    <!-- Register Tournament View -->
-                    <div id="register-tournament-view" style="display: none;">
-                        <h2>Register Tournament</h2>
-                        <form id="register-tournament-form">
-                            <div class="mb-3">
-                                <label for="tournament-name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="tournament-name" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Register</button>
-                        </form>
-                    </div>
-
-                    <!-- Register Team View -->
-                    <div id="register-team-view" style="display: none;">
-                        <h2>Register Team</h2>
-                        <form id="register-team-form">
-                            <div class="mb-3">
-                                <label for="team-name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="team-name" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Register</button>
-                        </form>
-                    </div>
-
-                    <!-- Register Player View -->
-                    <div id="register-player-view" style="display: none;">
-                        <h2>Register Player</h2>
-                        <form id="register-player-form">
-                            <div class="mb-3">
-                                <label for="player-name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="player-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="player-nickname" class="form-label">Nickname</label>
-                                <input type="text" class="form-control" id="player-nickname" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="player-role" class="form-label">Role</label>
-                                <input type="text" class="form-control" id="player-role" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Register</button>
-                        </form>
-                    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Warzone Manager</a>
+            <div class="dropdown">
+                <button class="btn btn-secondary" type="button" id="menu-toggle">
+                    &#8942; <!-- This is the vertical ellipsis HTML entity -->
+                </button>
+                <div class="dropdown-menu" id="main-dropdown-menu">
+                    <a class="dropdown-item nav-link active" href="#" id="view-tournaments-link">View Tournaments</a>
+                    <a class="dropdown-item nav-link" href="#" id="register-tournament-link">Register Tournament</a>
+                    <a class="dropdown-item nav-link" href="#" id="register-team-link">Register Team</a>
+                    <a class="dropdown-item nav-link" href="#" id="register-player-link">Register Player</a>
                 </div>
             </div>
         </div>
-        <!-- /#page-content-wrapper -->
-    </div>
-    <!-- /#wrapper -->
+    </nav>
+
+    <main class="container mt-4">
+        <div id="app-content">
+            <h1 class="mb-4" id="view-title">View Tournaments</h1>
+
+            <!-- Container for the list of tournaments -->
+            <div id="tournaments-list-view">
+                <h2>Tournaments</h2>
+                <ul class="list-group" id="tournaments-list-ul"></ul>
+                <div id="tournament-summary" class="mt-5">
+                    <h2>Tournament Summary</h2>
+                    <div id="summary-content"></div>
+                </div>
+            </div>
+
+            <!-- Register Tournament View -->
+            <div id="register-tournament-view" style="display: none;">
+                <h2>Register Tournament</h2>
+                <form id="register-tournament-form">
+                    <div class="mb-3">
+                        <label for="tournament-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="tournament-name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+
+            <!-- Register Team View -->
+            <div id="register-team-view" style="display: none;">
+                <h2>Register Team</h2>
+                <form id="register-team-form">
+                    <div class="mb-3">
+                        <label for="team-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="team-name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+
+            <!-- Register Player View -->
+            <div id="register-player-view" style="display: none;">
+                <h2>Register Player</h2>
+                <form id="register-player-form">
+                    <div class="mb-3">
+                        <label for="player-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="player-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="player-nickname" class="form-label">Nickname</label>
+                        <input type="text" class="form-control" id="player-nickname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="player-role" class="form-label">Role</label>
+                        <input type="text" class="form-control" id="player-role" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+        </div>
+    </main>
 
     <!-- Local JS -->
     <script src="js/script.js"></script>

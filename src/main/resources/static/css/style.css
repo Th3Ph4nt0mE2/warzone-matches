@@ -1,51 +1,41 @@
-/* Basic styles */
-body {
-    overflow-x: hidden; /* Prevent horizontal scroll */
+/* Custom Dropdown Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-/* Sidebar Styles */
-#wrapper {
-    display: flex;
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0; /* Align to the right of the button */
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: .25rem;
 }
 
-#sidebar-wrapper {
-    min-height: 100vh;
-    width: 250px;
-    background-color: #343a40; /* bg-dark */
-    color: white;
-    margin-left: -250px; /* Hidden by default */
-    transition: margin 0.25s ease-out;
+.dropdown-menu.show {
+    display: block; /* Show when .show class is added */
 }
 
-#wrapper.toggled #sidebar-wrapper {
-    margin-left: 0; /* Shown when toggled */
+.dropdown-menu a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
 }
 
-#sidebar-wrapper .sidebar-heading {
-    padding: 1.5rem;
-    font-size: 1.2rem;
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Make sure the nav-links inside the dropdown look right */
+.dropdown-menu .nav-link {
+    color: #343a40 !important; /* Override Bootstrap's white color for nav-link */
+}
+
+.dropdown-menu .nav-link.active {
     font-weight: bold;
-    text-align: center;
-    border-bottom: 1px solid #495057;
-}
-
-#sidebar-wrapper .list-group {
-    width: 100%;
-}
-
-#sidebar-wrapper .list-group-item {
-    border: none;
-    border-radius: 0;
-    padding: 1rem 1.5rem;
-    color: white;
-}
-
-#sidebar-wrapper .list-group-item:hover {
-    background-color: #495057;
-}
-
-#page-content-wrapper {
-    width: 100%;
-    flex: 1;
-    min-width: 0; /* Important for flexbox to not overflow */
+    background-color: #e9ecef;
 }
