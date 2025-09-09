@@ -15,8 +15,9 @@ public class Matches {
 	@Column(name = "ID_MATCHES")
 	private int idMatches;
 	
-	@Column(name = "TOURNAMENT")
-	private String tournament;
+	@ManyToOne
+	@JoinColumn(name = "ID_TOURNAMENT")
+	private Tournament tournament;
 	
 	@Column(name = "MATCH")
 	private int match;
@@ -39,11 +40,11 @@ public class Matches {
 		this.idMatches = idMatches;
 	}
 	
-	public String getTournament() {
+	public Tournament getTournament() {
 		return tournament;
 	}
 	
-	public void setTournament(String tournament) {
+	public void setTournament(Tournament tournament) {
 		this.tournament = tournament;
 	}
 	
