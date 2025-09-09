@@ -3,6 +3,8 @@ package org.warzone.matches.entities.persistence;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -13,11 +15,13 @@ public class PlayerMatchStats {
 	@Column(name = "ID_DETAILS")
 	private int idDetails;
 	
-	@Column(name = "ID_MATCHES")
-	private int idMatches;
+	@ManyToOne
+	@JoinColumn(name = "ID_MATCHES")
+	private Matches match;
 	
-	@Column(name = "ID_PLAYER")
-	private int idPlayer;
+	@ManyToOne
+	@JoinColumn(name = "ID_PLAYER")
+	private Player player;
 	
 	@Column(name = "KILLS")
 	private int kills;
@@ -30,20 +34,20 @@ public class PlayerMatchStats {
 		this.idDetails = idDetails;
 	}
 
-	public int getIdMatches() {
-		return idMatches;
+	public Matches getMatch() {
+		return match;
 	}
 
-	public void setIdMatches(int idMatches) {
-		this.idMatches = idMatches;
+	public void setMatch(Matches match) {
+		this.match = match;
 	}
 
-	public int getIdPlayer() {
-		return idPlayer;
+	public Player getPlayer() {
+		return player;
 	}
 
-	public void setIdPlayer(int idPlayer) {
-		this.idPlayer = idPlayer;
+	public void setPlayer(Player player) {
+		this.player = player;
 	}
 
 	public int getKills() {

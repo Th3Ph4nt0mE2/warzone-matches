@@ -3,6 +3,8 @@ package org.warzone.matches.entities.persistence;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,8 +21,9 @@ public class Matches {
 	@Column(name = "MATCH")
 	private int match;
 	
-	@Column(name = "ID_TEAMS")
-	private int idTeams;
+	@ManyToOne
+	@JoinColumn(name = "ID_TEAMS")
+	private Teams teams;
 	
 	@Column(name = "TOP")
 	private int top;
@@ -52,14 +55,14 @@ public class Matches {
 		this.match = match;
 	}
 	
-	public int getIdTeams() {
-		return idTeams;
+	public Teams getTeams() {
+		return teams;
 	}
-	
-	public void setIdTeams(int idTeams) {
-		this.idTeams = idTeams;
+
+	public void setTeams(Teams teams) {
+		this.teams = teams;
 	}
-	
+
 	public int getTop() {
 		return top;
 	}
