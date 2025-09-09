@@ -1,0 +1,9 @@
+/* Basic styles */
+
+.list-group-item-action {
+    cursor: pointer;
+}
+
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+}
