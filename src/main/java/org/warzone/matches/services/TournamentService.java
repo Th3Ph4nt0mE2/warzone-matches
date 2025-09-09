@@ -20,8 +20,9 @@ public class TournamentService {
     @Autowired
     private PlayerMatchStatsRepository playerMatchStatsRepository;
 
-    public List<TeamSummaryDTO> getTournamentSummary() {
-        List<PlayerMatchStats> allStats = playerMatchStatsRepository.findAll();
+    public List<TeamSummaryDTO> getTournamentSummary(int tournamentId) {
+        // This will be implemented in the next step. For now, this is a placeholder.
+        List<PlayerMatchStats> allStats = playerMatchStatsRepository.findByMatch_Tournament(tournamentId);
 
         // Step 1: Group stats by player and sum their kills
         Map<Player, Long> playerKills = allStats.stream()
