@@ -18,12 +18,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const teamForm = document.getElementById('register-team-form');
     const playerForm = document.getElementById('register-player-form');
 
-    // --- Sidebar Toggle ---
+    // --- Dropdown Menu Logic ---
     const menuToggle = document.getElementById('menu-toggle');
-    const wrapper = document.getElementById('wrapper');
-    menuToggle.addEventListener('click', () => {
-        wrapper.classList.toggle('toggled');
+    const dropdownMenu = document.getElementById('main-dropdown-menu');
+
+    menuToggle.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent this click from being caught by the window listener
+        dropdownMenu.classList.toggle('show');
     });
+
+    // Hide dropdown if user clicks outside
+    window.addEventListener('click', (event) => {
+        if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            }
+        }
+    });
+
 
     // --- View Management ---
     function showView(viewId) {
@@ -36,12 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show the selected view and activate its link
         const targetView = views[viewId];
+        const activeLink = document.getElementById(viewId);
+
         if (targetView) {
             targetView.style.display = 'block';
-            const activeLink = document.getElementById(viewId);
             if (activeLink) {
                 activeLink.classList.add('active');
-                // Update the main title based on the link's text
                 viewTitle.textContent = activeLink.textContent;
             }
         }
@@ -52,6 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             showView(link.id);
+            // Hide dropdown after selection
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            }
         });
     });
 
@@ -80,16 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners for Forms ---
     tournamentForm.addEventListener('submit', (e) => {
-        const body = {
-            name: document.getElementById('tournament-name').value,
-        };
+        const body = { name: document.getElementById('tournament-name').value };
         handleFormSubmit(e, '/api/tournaments', body);
     });
 
     teamForm.addEventListener('submit', (e) => {
-        const body = {
-            name: document.getElementById('team-name').value,
-        };
+        const body = { name: document.getElementById('team-name').value };
         handleFormSubmit(e, '/api/teams', body);
     });
 
@@ -104,8 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Existing Tournament List and Summary Logic ---
-
-    // Function to fetch all tournaments
+    // (This part remains the same)
     async function fetchTournaments() {
         try {
             const response = await fetch('/api/tournaments');
@@ -117,10 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tournamentsListUL.innerHTML = '<li class="list-group-item list-group-item-danger">Failed to load tournaments.</li>';
         }
     }
-
-    // Function to display tournaments in the list
     function displayTournaments(tournaments) {
-        tournamentsListUL.innerHTML = ''; // Clear existing list
+        tournamentsListUL.innerHTML = '';
         if (tournaments.length === 0) {
             tournamentsListUL.innerHTML = '<li class="list-group-item">No tournaments found.</li>';
             return;
@@ -134,8 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tournamentsListUL.appendChild(listItem);
         });
     }
-
-    // Function to fetch the summary for a specific tournament
     async function fetchTournamentSummary(tournamentId) {
         summaryContent.innerHTML = '<p>Loading summary...</p>';
         try {
@@ -148,8 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryContent.innerHTML = '<p class="text-danger">Failed to load tournament summary.</p>';
         }
     }
-
-    // Function to display the tournament summary in a table
     function displayTournamentSummary(summary) {
         if (!summary || summary.length === 0) {
             summaryContent.innerHTML = '<p>No summary data available for this tournament.</p>';
