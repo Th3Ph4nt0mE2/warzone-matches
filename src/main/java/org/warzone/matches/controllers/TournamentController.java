@@ -18,7 +18,7 @@ public class TournamentController {
     private TournamentService tournamentService;
 
     @GetMapping("/{id}/summary")
-    public List<TeamSummaryDTO> getTournamentSummary(@PathVariable int id) {
+    public List<TeamSummaryDTO> getTournamentSummary(@PathVariable String id) {
         return tournamentService.getTournamentSummary(id);
     }
 }
