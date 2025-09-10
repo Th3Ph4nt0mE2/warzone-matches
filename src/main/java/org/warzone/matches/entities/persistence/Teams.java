@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -21,6 +22,10 @@ public class Teams {
 
 	@Column(name = "NAME")
 	private String name;
+
+	@Lob
+	@Column(name = "LOGO", columnDefinition="BLOB")
+	private byte[] logo;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
@@ -52,5 +57,13 @@ public class Teams {
 
 	public void setPlayers(List<Player> players) {
 		this.players = players;
+	}
+
+	public byte[] getLogo() {
+		return logo;
+	}
+
+	public void setLogo(byte[] logo) {
+		this.logo = logo;
 	}
 }

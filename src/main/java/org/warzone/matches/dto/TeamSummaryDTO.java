@@ -4,11 +4,13 @@ import java.util.List;
 
 public class TeamSummaryDTO {
 
+    private int teamId;
     private String teamName;
     private long totalKills;
     private List<String> players;
 
-    public TeamSummaryDTO(String teamName, long totalKills, List<String> players) {
+    public TeamSummaryDTO(int teamId, String teamName, long totalKills, List<String> players) {
+        this.teamId = teamId;
         this.teamName = teamName;
         this.totalKills = totalKills;
         this.players = players;
@@ -37,5 +39,13 @@ public class TeamSummaryDTO {
 
     public void setPlayers(List<String> players) {
         this.players = players;
+    }
+
+    public int getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(int teamId) {
+        this.teamId = teamId;
     }
 }

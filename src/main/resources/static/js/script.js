@@ -23,11 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdownMenu = document.getElementById('main-dropdown-menu');
 
     menuToggle.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevent this click from being caught by the window listener
+        event.stopPropagation();
         dropdownMenu.classList.toggle('show');
     });
 
-    // Hide dropdown if user clicks outside
     window.addEventListener('click', (event) => {
         if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
             if (dropdownMenu.classList.contains('show')) {
@@ -39,14 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- View Management ---
     function showView(viewId) {
-        // Hide all views
         Object.values(views).forEach(view => {
             if (view) view.style.display = 'none';
         });
-        // Deactivate all nav links
         navLinks.forEach(link => link.classList.remove('active'));
 
-        // Show the selected view and activate its link
         const targetView = views[viewId];
         const activeLink = document.getElementById(viewId);
 
@@ -64,14 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             showView(link.id);
-            // Hide dropdown after selection
             if (dropdownMenu.classList.contains('show')) {
                 dropdownMenu.classList.remove('show');
             }
         });
     });
 
-    // --- Generic Form Submission Handler ---
+    // --- Generic Form Submission Handler (for JSON) ---
     async function handleFormSubmit(event, url, body) {
         event.preventDefault();
         try {
@@ -85,9 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errorData.message || 'Failed to register.');
             }
             alert('Registration successful!');
-            event.target.reset(); // Clear the form
-            showView('view-tournaments-link'); // Go back to the list
-            fetchTournaments(); // Refresh the list
+            event.target.reset();
+            showView('view-tournaments-link');
+            fetchTournaments();
         } catch (error) {
             console.error(`Error during registration at ${url}:`, error);
             alert(`Error: ${error.message}`);
@@ -100,9 +95,34 @@ document.addEventListener('DOMContentLoaded', () => {
         handleFormSubmit(e, '/api/tournaments', body);
     });
 
-    teamForm.addEventListener('submit', (e) => {
-        const body = { name: document.getElementById('team-name').value };
-        handleFormSubmit(e, '/api/teams', body);
+    // CUSTOM HANDLER FOR TEAM FORM (with file upload)
+    teamForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', document.getElementById('team-name').value);
+
+        const logoInput = document.getElementById('team-logo');
+        if (logoInput.files.length > 0) {
+            formData.append('logo', logoInput.files[0]);
+        }
+
+        try {
+            const response = await fetch('/api/teams', {
+                method: 'POST',
+                body: formData, // No Content-Type header needed; browser sets it
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to register team.');
+            }
+            alert('Team registration successful!');
+            e.target.reset();
+            showView('view-tournaments-link');
+            fetchTournaments();
+        } catch (error) {
+            console.error('Error during team registration:', error);
+            alert(`Error: ${error.message}`);
+        }
     });
 
     playerForm.addEventListener('submit', (e) => {
@@ -116,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Existing Tournament List and Summary Logic ---
-    // (This part remains the same)
     async function fetchTournaments() {
         try {
             const response = await fetch('/api/tournaments');
@@ -155,6 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryContent.innerHTML = '<p class="text-danger">Failed to load tournament summary.</p>';
         }
     }
+
+    // MODIFIED to display logos
     function displayTournamentSummary(summary) {
         if (!summary || summary.length === 0) {
             summaryContent.innerHTML = '<p>No summary data available for this tournament.</p>';
@@ -163,12 +184,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const table = document.createElement('table');
         table.className = 'table table-striped';
         const thead = document.createElement('thead');
-        thead.innerHTML = `<tr><th>Position</th><th>Team</th><th>Members</th><th>Total Kills</th></tr>`;
+        thead.innerHTML = `<tr><th>Logo</th><th>Team</th><th>Members</th><th>Total Kills</th></tr>`;
         table.appendChild(thead);
         const tbody = document.createElement('tbody');
         summary.forEach(teamSummary => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${teamSummary.position}</td><td>${teamSummary.teamName}</td><td>${teamSummary.members.join(', ')}</td><td>${teamSummary.totalKills}</td>`;
+
+            const logoCell = document.createElement('td');
+            const logoImg = document.createElement('img');
+            logoImg.src = `/api/teams/${teamSummary.teamId}/logo`;
+            logoImg.alt = `${teamSummary.teamName} Logo`;
+            logoImg.style.width = '50px';
+            logoImg.style.height = '50px';
+            logoImg.onerror = () => { logoImg.style.display = 'none'; }; // Hide if no logo
+            logoCell.appendChild(logoImg);
+            row.appendChild(logoCell);
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = teamSummary.teamName;
+            row.appendChild(nameCell);
+
+            const membersCell = document.createElement('td');
+            membersCell.textContent = teamSummary.members.join(', ');
+            row.appendChild(membersCell);
+
+            const killsCell = document.createElement('td');
+            killsCell.textContent = teamSummary.totalKills;
+            row.appendChild(killsCell);
+
             tbody.appendChild(row);
         });
         table.appendChild(tbody);
