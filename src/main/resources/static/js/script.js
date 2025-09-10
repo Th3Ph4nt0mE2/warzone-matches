@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API_BASE = '/warzone-matches';
+
     // --- Element Selectors ---
     const navLinks = {
         tournaments: document.getElementById('nav-tournaments'),
@@ -94,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAndDisplayTournaments() {
         tournamentsListContainer.innerHTML = '<h2>Tournaments</h2><p>Loading...</p>';
         try {
-            const response = await fetch('/api/tournaments');
+            const response = await fetch(`${API_BASE}/api/tournaments`);
             if (!response.ok) throw new Error('Failed to fetch tournaments');
             const tournaments = await response.json();
 
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const summaryContainer = document.getElementById('tournament-summary-container');
         summaryContainer.innerHTML = '<p>Loading summary...</p>';
         try {
-            const response = await fetch(`/api/tournaments/${tournamentId}/summary`);
+            const response = await fetch(`${API_BASE}/api/tournaments/${tournamentId}/summary`);
             if (!response.ok) throw new Error('Failed to fetch summary');
             const summary = await response.json();
 
@@ -136,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let tableHtml = '<h3>Tournament Summary</h3><table class="table table-striped"><thead><tr><th>Logo</th><th>Team</th><th>Members</th><th>Total Kills</th></tr></thead><tbody>';
             summary.forEach(ts => {
                 tableHtml += `<tr>
-                    <td><img src="/api/teams/${ts.teamId}/logo" alt="${ts.teamName}" style="width: 50px; height: 50px;" onerror="this.style.display='none'"></td>
+                    <td><img src="${API_BASE}/api/teams/${ts.teamId}/logo" alt="${ts.teamName}" style="width: 50px; height: 50px;" onerror="this.style.display='none'"></td>
                     <td>${ts.teamName}</td>
                     <td>${ts.members.join(', ')}</td>
                     <td>${ts.totalKills}</td>
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAndDisplayTeams() {
         teamsList.innerHTML = '<p>Loading teams...</p>';
         try {
-            const response = await fetch('/api/teams');
+            const response = await fetch(`${API_BASE}/api/teams`);
             if (!response.ok) throw new Error('Failed to fetch teams');
             const teams = await response.json();
 
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 teams.forEach(team => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex align-items-center';
-                    li.innerHTML = `<img src="/api/teams/${team.idTeams}/logo" alt="" style="width: 40px; height: 40px; margin-right: 15px;" onerror="this.style.display='none'"> ${team.name}`;
+                    li.innerHTML = `<img src="${API_BASE}/api/teams/${team.idTeams}/logo" alt="" style="width: 40px; height: 40px; margin-right: 15px;" onerror="this.style.display='none'"> ${team.name}`;
                     teamsList.appendChild(li);
                 });
             }
@@ -178,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAndDisplayPlayers() {
         playersList.innerHTML = '<p>Loading players...</p>';
         try {
-            const response = await fetch('/api/players');
+            const response = await fetch(`${API_BASE}/api/players`);
             if (!response.ok) throw new Error('Failed to fetch players');
             const players = await response.json();
 
@@ -231,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tournamentForm.addEventListener('submit', (e) => {
         const body = { name: document.getElementById('tournament-name').value };
-        handleJsonSubmit(e, '/api/tournaments', body, () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
+        handleJsonSubmit(e, `${API_BASE}/api/tournaments`, body, () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
     });
 
     teamForm.addEventListener('submit', (e) => {
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('name', document.getElementById('team-name').value);
         const logoInput = document.getElementById('team-logo');
         if (logoInput.files.length > 0) formData.append('logo', logoInput.files[0]);
-        handleMultipartSubmit(e, '/api/teams', formData, () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
+        handleMultipartSubmit(e, `${API_BASE}/api/teams`, formData, () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
     });
 
     playerForm.addEventListener('submit', (e) => {
@@ -248,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nickname: document.getElementById('player-nickname').value,
             role: document.getElementById('player-role').value,
         };
-        handleJsonSubmit(e, '/api/players', body, () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+        handleJsonSubmit(e, `${API_BASE}/api/players`, body, () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
     });
 
     // --- Initial Setup ---
