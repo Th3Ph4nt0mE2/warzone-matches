@@ -1,73 +1,205 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Navigation and View Elements ---
-    const navLinks = document.querySelectorAll('.nav-link');
-    const views = {
-        'view-tournaments-link': document.getElementById('tournaments-list-view'),
-        'register-tournament-link': document.getElementById('register-tournament-view'),
-        'register-team-link': document.getElementById('register-team-view'),
-        'register-player-link': document.getElementById('register-player-view'),
+    // --- Element Selectors ---
+    const navLinks = {
+        tournaments: document.getElementById('nav-tournaments'),
+        teams: document.getElementById('nav-teams'),
+        players: document.getElementById('nav-players'),
     };
-
-    // --- Main Content Elements ---
+    const views = {
+        tournaments: document.getElementById('tournaments-view'),
+        teams: document.getElementById('teams-view'),
+        players: document.getElementById('players-view'),
+        registerTournament: document.getElementById('register-tournament-view'),
+        registerTeam: document.getElementById('register-team-view'),
+        registerPlayer: document.getElementById('register-player-view'),
+    };
     const viewTitle = document.getElementById('view-title');
-    const tournamentsListUL = document.getElementById('tournaments-list-ul');
-    const summaryContent = document.getElementById('summary-content');
+    const dropdownMenu = document.getElementById('main-dropdown-menu');
+    const menuToggle = document.getElementById('menu-toggle');
 
-    // --- Form Elements ---
+    // List containers
+    const tournamentsListContainer = document.getElementById('tournaments-list-container');
+    const teamsList = document.getElementById('teams-list');
+    const playersList = document.getElementById('players-list');
+
+    // Forms
     const tournamentForm = document.getElementById('register-tournament-form');
     const teamForm = document.getElementById('register-team-form');
     const playerForm = document.getElementById('register-player-form');
 
-    // --- Dropdown Menu Logic ---
-    const menuToggle = document.getElementById('menu-toggle');
-    const dropdownMenu = document.getElementById('main-dropdown-menu');
+    // --- View Management ---
+    function showView(viewKey) {
+        for (const key in views) {
+            if (views[key]) views[key].style.display = 'none';
+        }
+        if (views[viewKey]) {
+            views[viewKey].style.display = 'block';
+        }
+    }
 
+    // --- Dropdown Menu Logic ---
     menuToggle.addEventListener('click', (event) => {
         event.stopPropagation();
         dropdownMenu.classList.toggle('show');
     });
-
-    window.addEventListener('click', (event) => {
-        if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
-            if (dropdownMenu.classList.contains('show')) {
-                dropdownMenu.classList.remove('show');
-            }
+    window.addEventListener('click', () => {
+        if (dropdownMenu.classList.contains('show')) {
+            dropdownMenu.classList.remove('show');
         }
     });
 
-
-    // --- View Management ---
-    function showView(viewId) {
-        Object.values(views).forEach(view => {
-            if (view) view.style.display = 'none';
-        });
-        navLinks.forEach(link => link.classList.remove('active'));
-
-        const targetView = views[viewId];
-        const activeLink = document.getElementById(viewId);
-
-        if (targetView) {
-            targetView.style.display = 'block';
-            if (activeLink) {
-                activeLink.classList.add('active');
-                viewTitle.textContent = activeLink.textContent;
-            }
+    // --- Navigation ---
+    function handleNavClick(viewKey, title, fetchCallback) {
+        showView(viewKey);
+        viewTitle.textContent = title;
+        if (fetchCallback) fetchCallback();
+        for (const key in navLinks) {
+            if (navLinks[key]) navLinks[key].classList.remove('active');
+        }
+        if (navLinks[viewKey]) {
+            navLinks[viewKey].classList.add('active');
+        }
+        if (dropdownMenu.classList.contains('show')) {
+            dropdownMenu.classList.remove('show');
         }
     }
 
-    // --- Event Listeners for Navigation ---
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            showView(link.id);
-            if (dropdownMenu.classList.contains('show')) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
+    navLinks.tournaments.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
+    });
+    navLinks.teams.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleNavClick('teams', 'Teams', fetchAndDisplayTeams);
+    });
+    navLinks.players.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleNavClick('players', 'Players', fetchAndDisplayPlayers);
     });
 
-    // --- Generic Form Submission Handler (for JSON) ---
-    async function handleFormSubmit(event, url, body) {
+    // --- "Create" Button Logic ---
+    document.getElementById('show-register-tournament-form').addEventListener('click', () => showView('registerTournament'));
+    document.getElementById('show-register-team-form').addEventListener('click', () => showView('registerTeam'));
+    document.getElementById('show-register-player-form').addEventListener('click', () => showView('registerPlayer'));
+
+    // --- "Cancel" Button Logic ---
+    document.getElementById('cancel-register-tournament').addEventListener('click', () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
+    document.getElementById('cancel-register-team').addEventListener('click', () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
+    document.getElementById('cancel-register-player').addEventListener('click', () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+
+
+    // --- Data Fetching and Display ---
+
+    // Tournaments
+    async function fetchAndDisplayTournaments() {
+        tournamentsListContainer.innerHTML = '<h2>Tournaments</h2><p>Loading...</p>';
+        try {
+            const response = await fetch('/api/tournaments');
+            if (!response.ok) throw new Error('Failed to fetch tournaments');
+            const tournaments = await response.json();
+
+            let listHtml = '<h2>Tournaments</h2><ul class="list-group">';
+            if (tournaments.length === 0) {
+                listHtml += '<li class="list-group-item">No tournaments found.</li>';
+            } else {
+                tournaments.forEach(t => {
+                    listHtml += `<a href="#" class="list-group-item list-group-item-action" data-id="${t.id}">${t.name} (${t.status})</a>`;
+                });
+            }
+            listHtml += '</ul><div id="tournament-summary-container" class="mt-4"></div>';
+            tournamentsListContainer.innerHTML = listHtml;
+
+            tournamentsListContainer.querySelectorAll('.list-group-item-action').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fetchTournamentSummary(item.dataset.id);
+                });
+            });
+
+        } catch (error) {
+            tournamentsListContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
+        }
+    }
+
+    async function fetchTournamentSummary(tournamentId) {
+        const summaryContainer = document.getElementById('tournament-summary-container');
+        summaryContainer.innerHTML = '<p>Loading summary...</p>';
+        try {
+            const response = await fetch(`/api/tournaments/${tournamentId}/summary`);
+            if (!response.ok) throw new Error('Failed to fetch summary');
+            const summary = await response.json();
+
+            if (!summary || summary.length === 0) {
+                summaryContainer.innerHTML = '<p>No summary data available.</p>';
+                return;
+            }
+            let tableHtml = '<h3>Tournament Summary</h3><table class="table table-striped"><thead><tr><th>Logo</th><th>Team</th><th>Members</th><th>Total Kills</th></tr></thead><tbody>';
+            summary.forEach(ts => {
+                tableHtml += `<tr>
+                    <td><img src="/api/teams/${ts.teamId}/logo" alt="${ts.teamName}" style="width: 50px; height: 50px;" onerror="this.style.display='none'"></td>
+                    <td>${ts.teamName}</td>
+                    <td>${ts.members.join(', ')}</td>
+                    <td>${ts.totalKills}</td>
+                </tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            summaryContainer.innerHTML = tableHtml;
+
+        } catch (error) {
+            summaryContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
+        }
+    }
+
+    // Teams
+    async function fetchAndDisplayTeams() {
+        teamsList.innerHTML = '<p>Loading teams...</p>';
+        try {
+            const response = await fetch('/api/teams');
+            if (!response.ok) throw new Error('Failed to fetch teams');
+            const teams = await response.json();
+
+            teamsList.innerHTML = '';
+            if (teams.length === 0) {
+                teamsList.innerHTML = '<li class="list-group-item">No teams found.</li>';
+            } else {
+                teams.forEach(team => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex align-items-center';
+                    li.innerHTML = `<img src="/api/teams/${team.idTeams}/logo" alt="" style="width: 40px; height: 40px; margin-right: 15px;" onerror="this.style.display='none'"> ${team.name}`;
+                    teamsList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            teamsList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
+        }
+    }
+
+    // Players
+    async function fetchAndDisplayPlayers() {
+        playersList.innerHTML = '<p>Loading players...</p>';
+        try {
+            const response = await fetch('/api/players');
+            if (!response.ok) throw new Error('Failed to fetch players');
+            const players = await response.json();
+
+            playersList.innerHTML = '';
+            if (players.length === 0) {
+                playersList.innerHTML = '<li class="list-group-item">No players found.</li>';
+            } else {
+                players.forEach(player => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = `${player.name} (${player.nickname}) - Role: ${player.role}`;
+                    playersList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            playersList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
+        }
+    }
+
+    // --- Form Submission Logic ---
+    async function handleJsonSubmit(event, url, body, successCallback) {
         event.preventDefault();
         try {
             const response = await fetch(url, {
@@ -75,54 +207,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to register.');
-            }
+            if (!response.ok) throw new Error(await response.text());
             alert('Registration successful!');
             event.target.reset();
-            showView('view-tournaments-link');
-            fetchTournaments();
+            successCallback();
         } catch (error) {
-            console.error(`Error during registration at ${url}:`, error);
             alert(`Error: ${error.message}`);
         }
     }
 
-    // --- Event Listeners for Forms ---
-    tournamentForm.addEventListener('submit', (e) => {
-        const body = { name: document.getElementById('tournament-name').value };
-        handleFormSubmit(e, '/api/tournaments', body);
-    });
-
-    // CUSTOM HANDLER FOR TEAM FORM (with file upload)
-    teamForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', document.getElementById('team-name').value);
-
-        const logoInput = document.getElementById('team-logo');
-        if (logoInput.files.length > 0) {
-            formData.append('logo', logoInput.files[0]);
-        }
-
+    async function handleMultipartSubmit(event, url, formData, successCallback) {
+        event.preventDefault();
         try {
-            const response = await fetch('/api/teams', {
-                method: 'POST',
-                body: formData, // No Content-Type header needed; browser sets it
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to register team.');
-            }
-            alert('Team registration successful!');
-            e.target.reset();
-            showView('view-tournaments-link');
-            fetchTournaments();
+            const response = await fetch(url, { method: 'POST', body: formData });
+            if (!response.ok) throw new Error(await response.text());
+            alert('Registration successful!');
+            event.target.reset();
+            successCallback();
         } catch (error) {
-            console.error('Error during team registration:', error);
             alert(`Error: ${error.message}`);
         }
+    }
+
+    tournamentForm.addEventListener('submit', (e) => {
+        const body = { name: document.getElementById('tournament-name').value };
+        handleJsonSubmit(e, '/api/tournaments', body, () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
+    });
+
+    teamForm.addEventListener('submit', (e) => {
+        const formData = new FormData();
+        formData.append('name', document.getElementById('team-name').value);
+        const logoInput = document.getElementById('team-logo');
+        if (logoInput.files.length > 0) formData.append('logo', logoInput.files[0]);
+        handleMultipartSubmit(e, '/api/teams', formData, () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
     });
 
     playerForm.addEventListener('submit', (e) => {
@@ -131,95 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
             nickname: document.getElementById('player-nickname').value,
             role: document.getElementById('player-role').value,
         };
-        handleFormSubmit(e, '/api/players', body);
+        handleJsonSubmit(e, '/api/players', body, () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
     });
 
-
-    // --- Existing Tournament List and Summary Logic ---
-    async function fetchTournaments() {
-        try {
-            const response = await fetch('/api/tournaments');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const tournaments = await response.json();
-            displayTournaments(tournaments);
-        } catch (error) {
-            console.error('Error fetching tournaments:', error);
-            tournamentsListUL.innerHTML = '<li class="list-group-item list-group-item-danger">Failed to load tournaments.</li>';
-        }
-    }
-    function displayTournaments(tournaments) {
-        tournamentsListUL.innerHTML = '';
-        if (tournaments.length === 0) {
-            tournamentsListUL.innerHTML = '<li class="list-group-item">No tournaments found.</li>';
-            return;
-        }
-        tournaments.forEach(tournament => {
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item list-group-item-action';
-            listItem.textContent = `${tournament.name} (Status: ${tournament.status})`;
-            listItem.dataset.id = tournament.id;
-            listItem.addEventListener('click', () => fetchTournamentSummary(tournament.id));
-            tournamentsListUL.appendChild(listItem);
-        });
-    }
-    async function fetchTournamentSummary(tournamentId) {
-        summaryContent.innerHTML = '<p>Loading summary...</p>';
-        try {
-            const response = await fetch(`/api/tournaments/${tournamentId}/summary`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const summary = await response.json();
-            displayTournamentSummary(summary);
-        } catch (error) {
-            console.error(`Error fetching summary for tournament ${tournamentId}:`, error);
-            summaryContent.innerHTML = '<p class="text-danger">Failed to load tournament summary.</p>';
-        }
-    }
-
-    // MODIFIED to display logos
-    function displayTournamentSummary(summary) {
-        if (!summary || summary.length === 0) {
-            summaryContent.innerHTML = '<p>No summary data available for this tournament.</p>';
-            return;
-        }
-        const table = document.createElement('table');
-        table.className = 'table table-striped';
-        const thead = document.createElement('thead');
-        thead.innerHTML = `<tr><th>Logo</th><th>Team</th><th>Members</th><th>Total Kills</th></tr>`;
-        table.appendChild(thead);
-        const tbody = document.createElement('tbody');
-        summary.forEach(teamSummary => {
-            const row = document.createElement('tr');
-
-            const logoCell = document.createElement('td');
-            const logoImg = document.createElement('img');
-            logoImg.src = `/api/teams/${teamSummary.teamId}/logo`;
-            logoImg.alt = `${teamSummary.teamName} Logo`;
-            logoImg.style.width = '50px';
-            logoImg.style.height = '50px';
-            logoImg.onerror = () => { logoImg.style.display = 'none'; }; // Hide if no logo
-            logoCell.appendChild(logoImg);
-            row.appendChild(logoCell);
-
-            const nameCell = document.createElement('td');
-            nameCell.textContent = teamSummary.teamName;
-            row.appendChild(nameCell);
-
-            const membersCell = document.createElement('td');
-            membersCell.textContent = teamSummary.members.join(', ');
-            row.appendChild(membersCell);
-
-            const killsCell = document.createElement('td');
-            killsCell.textContent = teamSummary.totalKills;
-            row.appendChild(killsCell);
-
-            tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-        summaryContent.innerHTML = '';
-        summaryContent.appendChild(table);
-    }
-
     // --- Initial Setup ---
-    showView('view-tournaments-link'); // Show the default view
-    fetchTournaments(); // Initial fetch of tournaments
+    handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
 });
