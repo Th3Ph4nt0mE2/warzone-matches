@@ -13,32 +13,45 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
         <div class="dropdown">
             <button class="btn btn-dark navbar-brand" type="button" id="menu-toggle">
-                Warzone Manager &#9662; <!-- Downward pointing triangle -->
+                Warzone Manager &#9662;
             </button>
             <div class="dropdown-menu" id="main-dropdown-menu">
-                <a class="dropdown-item nav-link active" href="#" id="view-tournaments-link">View Tournaments</a>
-                <a class="dropdown-item nav-link" href="#" id="register-tournament-link">Register Tournament</a>
-                <a class="dropdown-item nav-link" href="#" id="register-team-link">Register Team</a>
-                <a class="dropdown-item nav-link" href="#" id="register-player-link">Register Player</a>
+                <a class="dropdown-item nav-link active" href="#" id="nav-tournaments">Tournaments</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-teams">Teams</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-players">Players</a>
             </div>
         </div>
     </nav>
 
     <main class="container mt-4">
         <div id="app-content">
-            <h1 class="mb-4" id="view-title">View Tournaments</h1>
+            <h1 class="mb-4" id="view-title">Tournaments</h1>
 
-            <!-- Container for the list of tournaments -->
-            <div id="tournaments-list-view">
-                <h2>Tournaments</h2>
-                <ul class="list-group" id="tournaments-list-ul"></ul>
-                <div id="tournament-summary" class="mt-5">
-                    <h2>Tournament Summary</h2>
-                    <div id="summary-content"></div>
+            <!-- Tournaments View -->
+            <div id="tournaments-view">
+                <button class="btn btn-primary mb-3" id="show-register-tournament-form">Create Tournament</button>
+                <div id="tournaments-list-container">
+                    <!-- Tournament list and summary will be rendered here -->
                 </div>
             </div>
 
-            <!-- Register Tournament View -->
+            <!-- Teams View -->
+            <div id="teams-view" style="display: none;">
+                <button class="btn btn-primary mb-3" id="show-register-team-form">Create Team</button>
+                <ul class="list-group" id="teams-list">
+                    <!-- Teams list will be rendered here -->
+                </ul>
+            </div>
+
+            <!-- Players View -->
+            <div id="players-view" style="display: none;">
+                <button class="btn btn-primary mb-3" id="show-register-player-form">Create Player</button>
+                <ul class="list-group" id="players-list">
+                    <!-- Players list will be rendered here -->
+                </ul>
+            </div>
+
+            <!-- Register Tournament View (now hidden and shown on demand) -->
             <div id="register-tournament-view" style="display: none;">
                 <h2>Register Tournament</h2>
                 <form id="register-tournament-form">
@@ -47,10 +60,11 @@
                         <input type="text" class="form-control" id="tournament-name" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-tournament">Cancel</button>
                 </form>
             </div>
 
-            <!-- Register Team View -->
+            <!-- Register Team View (now hidden and shown on demand) -->
             <div id="register-team-view" style="display: none;">
                 <h2>Register Team</h2>
                 <form id="register-team-form" enctype="multipart/form-data">
@@ -63,10 +77,11 @@
                         <input type="file" class="form-control" id="team-logo" name="logo" accept="image/png, image/jpeg">
                     </div>
                     <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-team">Cancel</button>
                 </form>
             </div>
 
-            <!-- Register Player View -->
+            <!-- Register Player View (now hidden and shown on demand) -->
             <div id="register-player-view" style="display: none;">
                 <h2>Register Player</h2>
                 <form id="register-player-form">
@@ -83,6 +98,7 @@
                         <input type="text" class="form-control" id="player-role" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-player">Cancel</button>
                 </form>
             </div>
         </div>
