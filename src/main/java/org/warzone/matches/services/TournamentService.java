@@ -60,7 +60,7 @@ public class TournamentService {
             player.getTeams().forEach(team -> {
                 TeamSummaryDTO summary = teamSummaries.computeIfAbsent(
                     team,
-                    t -> new TeamSummaryDTO(t.getName(), 0L, new ArrayList<>())
+                    t -> new TeamSummaryDTO(t.getIdTeams(), t.getName(), 0L, new ArrayList<>())
                 );
                 summary.setTotalKills(summary.getTotalKills() + kills);
                 if (!summary.getPlayers().contains(player.getName())) {
