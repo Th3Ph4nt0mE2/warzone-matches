@@ -101,6 +101,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Player List Edit/Delete Logic ---
     playersList.addEventListener('click', (e) => {
         const target = e.target;
+        const listItem = target.closest('.list-group-item');
+
+        // Handle row selection to show/hide buttons
+        if (listItem && !target.closest('.player-actions')) {
+            const currentlySelected = playersList.querySelector('.selected');
+            if (currentlySelected && currentlySelected !== listItem) {
+                currentlySelected.classList.remove('selected');
+            }
+            listItem.classList.toggle('selected');
+        }
+
+        // Handle button clicks
         if (target.classList.contains('edit-player')) {
             const playerId = target.dataset.id;
             handleEditPlayer(playerId);
@@ -111,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Data Fetching and Display ---
-    // (Tournament and Team functions are unchanged)
     async function fetchAndDisplayTournaments() {
         tournamentsListContainer.innerHTML = '<h2>Tournaments</h2><p>Loading...</p>';
         try {
@@ -210,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     playerInfo.textContent = `${player.name} (${player.nickname}) - Role: ${player.role}`;
 
                     const buttonsDiv = document.createElement('div');
+                    buttonsDiv.className = 'player-actions';
 
                     const editButton = document.createElement('button');
                     editButton.className = 'btn btn-sm btn-secondary me-2 edit-player';
