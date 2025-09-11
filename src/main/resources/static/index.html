@@ -39,17 +39,18 @@
             <div id="teams-view" style="display: none;">
                 <button class="btn btn-primary mb-3" id="show-register-team-form">Create Team</button>
                 <div class="row">
-                    <div class="col-md-5">
-                        <h3>All Teams</h3>
-                        <ul class="list-group" id="teams-list">
-                            <!-- Teams list will be rendered here -->
-                        </ul>
+                    <!-- Left Column: Teams List -->
+                    <div id="teams-list-container" class="col-md-4">
+                        <!-- Team list will be injected here by script.js -->
                     </div>
-                    <div class="col-md-7">
-                        <h3>Team Players</h3>
-                        <div id="team-players-list-container">
-                            <p class="text-muted">Select a team to see its players.</p>
-                            <!-- Players of the selected team will be rendered here -->
+                    <!-- Right Column: Team Details -->
+                    <div id="team-details-container" class="col-md-8">
+                        <!-- Player list for the selected team will be injected here -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Team Details</h5>
+                                <p class="card-text">Select a team from the list to see its players.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
