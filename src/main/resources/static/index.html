@@ -16,19 +16,27 @@
                 Warzone Manager &#9662;
             </button>
             <div class="dropdown-menu" id="main-dropdown-menu">
-                <a class="dropdown-item nav-link active" href="#" id="nav-tournaments">Tournaments</a>
+                <a class="dropdown-item nav-link active" href="#" id="nav-summary">Summary</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-tournaments">Tournaments</a>
                 <a class="dropdown-item nav-link" href="#" id="nav-teams">Teams</a>
                 <a class="dropdown-item nav-link" href="#" id="nav-players">Players</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-settings">Settings</a>
             </div>
         </div>
     </nav>
 
     <main class="container mt-4">
         <div id="app-content">
-            <h1 class="mb-4" id="view-title">Tournaments</h1>
+            <h1 class="mb-4" id="view-title">Summary</h1>
+
+            <!-- Summary View -->
+            <div id="summary-view">
+                <h2>Welcome to the Warzone Manager</h2>
+                <p>This is the summary page. Use the menu to navigate to other sections.</p>
+            </div>
 
             <!-- Tournaments View -->
-            <div id="tournaments-view">
+            <div id="tournaments-view" style="display: none;">
                 <button class="btn btn-primary mb-3" id="show-register-tournament-form">Create Tournament</button>
                 <div id="tournaments-list-container">
                     <!-- Tournament list and summary will be rendered here -->
@@ -62,6 +70,12 @@
                 <ul class="list-group" id="players-list">
                     <!-- Players list will be rendered here -->
                 </ul>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" style="display: none;">
+                <h2>Settings</h2>
+                <p>This is the settings page. Options will be added here in the future.</p>
             </div>
 
             <!-- Register Tournament View (now hidden and shown on demand) -->
