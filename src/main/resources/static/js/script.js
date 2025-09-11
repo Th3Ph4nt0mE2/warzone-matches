@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
         try {
-            const response = await fetch(`${API_BASE}/api/teams`);
+            const response = await fetch(`${API_BASE}/api/teams`, { cache: 'no-cache' });
             if (!response.ok) throw new Error('Failed to fetch teams');
             const teams = await response.json();
 
