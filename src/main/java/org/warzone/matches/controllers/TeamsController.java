@@ -57,15 +57,19 @@ public class TeamsController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Teams> updateTeam(@PathVariable int id, @RequestBody Teams teamDetails) {
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Teams> updateTeam(@PathVariable int id, @RequestParam("name") String name, @RequestParam(value = "logo", required = false) MultipartFile logoFile) {
         return teamsService.getTeamById(id)
                 .map(team -> {
-                    team.setName(teamDetails.getName());
-                    // Note: Updating the list of players is a complex operation.
-                    // A simple setPlayers might lead to unintended side effects
-                    // depending on the cascade and ownership settings.
-                    // For now, we only update the name.
+                    team.setName(name);
+                    if (logoFile != null && !logoFile.isEmpty()) {
+                        try {
+                            team.setLogo(logoFile.getBytes());
+                        } catch (IOException e) {
+                            // In a real app, handle this exception more gracefully
+                            throw new RuntimeException("Failed to store file.", e);
+                        }
+                    }
                     Teams updatedTeam = teamsService.saveTeam(team);
                     return ResponseEntity.ok(updatedTeam);
                 })
