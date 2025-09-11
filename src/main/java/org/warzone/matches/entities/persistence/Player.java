@@ -1,6 +1,7 @@
 package org.warzone.matches.entities.persistence;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ public class Player {
 	@Column(name = "ROLE")
 	private String role;
 	
+    @JsonBackReference
     @ManyToMany(mappedBy = "players")
     private List<Teams> teams;
 
