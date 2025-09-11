@@ -83,8 +83,9 @@
 
             <!-- Register Player View (now hidden and shown on demand) -->
             <div id="register-player-view" style="display: none;">
-                <h2>Register Player</h2>
+                <h2 id="player-form-title">Register Player</h2>
                 <form id="register-player-form">
+                    <input type="hidden" id="player-id-edit">
                     <div class="mb-3">
                         <label for="player-name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="player-name" required>

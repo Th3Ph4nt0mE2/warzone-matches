@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tournamentForm = document.getElementById('register-tournament-form');
     const teamForm = document.getElementById('register-team-form');
     const playerForm = document.getElementById('register-player-form');
+    const playerFormTitle = document.getElementById('player-form-title');
+    const playerFormSubmitButton = playerForm.querySelector('button[type="submit"]');
+    const hiddenPlayerId = document.getElementById('player-id-edit');
 
     // --- View Management ---
     function showView(viewKey) {
@@ -82,17 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- "Create" Button Logic ---
     document.getElementById('show-register-tournament-form').addEventListener('click', () => showView('registerTournament'));
     document.getElementById('show-register-team-form').addEventListener('click', () => showView('registerTeam'));
-    document.getElementById('show-register-player-form').addEventListener('click', () => showView('registerPlayer'));
+    document.getElementById('show-register-player-form').addEventListener('click', () => {
+        resetPlayerForm();
+        showView('registerPlayer');
+    });
 
     // --- "Cancel" Button Logic ---
     document.getElementById('cancel-register-tournament').addEventListener('click', () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
     document.getElementById('cancel-register-team').addEventListener('click', () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
-    document.getElementById('cancel-register-player').addEventListener('click', () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+    document.getElementById('cancel-register-player').addEventListener('click', () => {
+        resetPlayerForm();
+        handleNavClick('players', 'Players', fetchAndDisplayPlayers);
+    });
 
+    // --- Player List Edit/Delete Logic ---
+    playersList.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('edit-player')) {
+            const playerId = target.dataset.id;
+            handleEditPlayer(playerId);
+        } else if (target.classList.contains('delete-player')) {
+            const playerId = target.dataset.id;
+            handleDeletePlayer(playerId);
+        }
+    });
 
     // --- Data Fetching and Display ---
-
-    // Tournaments
+    // (Tournament and Team functions are unchanged)
     async function fetchAndDisplayTournaments() {
         tournamentsListContainer.innerHTML = '<h2>Tournaments</h2><p>Loading...</p>';
         try {
@@ -122,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tournamentsListContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
         }
     }
-
     async function fetchTournamentSummary(tournamentId) {
         const summaryContainer = document.getElementById('tournament-summary-container');
         summaryContainer.innerHTML = '<p>Loading summary...</p>';
@@ -151,8 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
         }
     }
-
-    // Teams
     async function fetchAndDisplayTeams() {
         teamsList.innerHTML = '<p>Loading teams...</p>';
         try {
@@ -175,8 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             teamsList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
         }
     }
-
-    // Players
     async function fetchAndDisplayPlayers() {
         playersList.innerHTML = '<p>Loading players...</p>';
         try {
@@ -190,8 +204,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 players.forEach(player => {
                     const li = document.createElement('li');
-                    li.className = 'list-group-item';
-                    li.textContent = `${player.name} (${player.nickname}) - Role: ${player.role}`;
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                    const playerInfo = document.createElement('span');
+                    playerInfo.textContent = `${player.name} (${player.nickname}) - Role: ${player.role}`;
+
+                    const buttonsDiv = document.createElement('div');
+
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-sm btn-secondary me-2 edit-player';
+                    editButton.textContent = 'Edit';
+                    editButton.dataset.id = player.idPlayer;
+                    buttonsDiv.appendChild(editButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-sm btn-danger delete-player';
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.dataset.id = player.idPlayer;
+                    buttonsDiv.appendChild(deleteButton);
+
+                    li.appendChild(playerInfo);
+                    li.appendChild(buttonsDiv);
                     playersList.appendChild(li);
                 });
             }
@@ -200,17 +233,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function handleDeletePlayer(playerId) {
+        if (!confirm(`Are you sure you want to delete player ${playerId}?`)) {
+            return;
+        }
+        try {
+            const response = await fetch(`${API_BASE}/api/players/${playerId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete player.');
+            alert('Player deleted successfully!');
+            fetchAndDisplayPlayers();
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    async function handleEditPlayer(playerId) {
+        try {
+            const response = await fetch(`${API_BASE}/api/players/${playerId}`);
+            if (!response.ok) throw new Error('Failed to fetch player data.');
+            const player = await response.json();
+
+            // Populate form
+            hiddenPlayerId.value = player.idPlayer;
+            document.getElementById('player-name').value = player.name;
+            document.getElementById('player-nickname').value = player.nickname;
+            document.getElementById('player-role').value = player.role;
+
+            // Update UI for editing
+            playerFormTitle.textContent = 'Edit Player';
+            playerFormSubmitButton.textContent = 'Update';
+
+            showView('registerPlayer');
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    function resetPlayerForm() {
+        playerForm.reset();
+        hiddenPlayerId.value = '';
+        playerFormTitle.textContent = 'Register Player';
+        playerFormSubmitButton.textContent = 'Register';
+    }
+
     // --- Form Submission Logic ---
-    async function handleJsonSubmit(event, url, body, successCallback) {
+    async function handleJsonSubmit(event, url, body, method, successCallback) {
         event.preventDefault();
         try {
             const response = await fetch(url, {
-                method: 'POST',
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
             if (!response.ok) throw new Error(await response.text());
-            alert('Registration successful!');
+            alert('Operation successful!');
             event.target.reset();
             successCallback();
         } catch (error) {
@@ -233,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tournamentForm.addEventListener('submit', (e) => {
         const body = { name: document.getElementById('tournament-name').value };
-        handleJsonSubmit(e, `${API_BASE}/api/tournaments`, body, () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
+        handleJsonSubmit(e, `${API_BASE}/api/tournaments`, body, 'POST', () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
     });
 
     teamForm.addEventListener('submit', (e) => {
@@ -245,12 +321,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     playerForm.addEventListener('submit', (e) => {
+        const playerId = hiddenPlayerId.value;
         const body = {
             name: document.getElementById('player-name').value,
             nickname: document.getElementById('player-nickname').value,
             role: document.getElementById('player-role').value,
         };
-        handleJsonSubmit(e, `${API_BASE}/api/players`, body, () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+
+        if (playerId) {
+            // Update
+            handleJsonSubmit(e, `${API_BASE}/api/players/${playerId}`, body, 'PUT', () => {
+                resetPlayerForm();
+                handleNavClick('players', 'Players', fetchAndDisplayPlayers);
+            });
+        } else {
+            // Create
+            handleJsonSubmit(e, `${API_BASE}/api/players`, body, 'POST', () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+        }
     });
 
     // --- Initial Setup ---
