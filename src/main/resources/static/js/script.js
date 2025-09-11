@@ -47,6 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const tournamentFormSubmitButton = tournamentForm.querySelector('button[type="submit"]');
     const hiddenTournamentId = document.getElementById('tournament-id-edit');
 
+    // Modal elements
+    const addPlayerModalElement = document.getElementById('add-player-modal');
+    const availablePlayersList = document.getElementById('available-players-list');
+    const addSelectedPlayerButton = document.getElementById('add-selected-player-button');
+    let addPlayerModal; // To be initialized when first shown
+    let selectedTeamId = null;
+    let selectedPlayerId = null;
+    let selectedAvailablePlayerId = null;
+
 
     // --- View Management ---
     function showView(viewKey) {
@@ -168,13 +177,125 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // New listener for the team details pane (for edit/delete buttons)
-    teamDetailsContainer.addEventListener('click', e => {
+    // New listener for the team details pane (for edit/delete buttons, and player management)
+    teamDetailsContainer.addEventListener('click', async (e) => {
         const target = e.target;
-        if (target.classList.contains('edit-team')) {
-            handleEditTeam(target.dataset.id);
-        } else if (target.classList.contains('delete-team')) {
-            handleDeleteTeam(target.dataset.id);
+
+        // --- Handle selecting a player from the team list ---
+        if (target.classList.contains('team-member-item')) {
+            e.preventDefault();
+            const removeButton = document.getElementById('remove-selected-player-button');
+            const currentlySelected = teamDetailsContainer.querySelector('.team-member-item.active');
+
+            if (currentlySelected && currentlySelected === target) {
+                // Deselect if clicking the same item
+                target.classList.remove('active');
+                selectedPlayerId = null;
+                removeButton.style.display = 'none';
+            } else {
+                // Select the new item
+                if (currentlySelected) {
+                    currentlySelected.classList.remove('active');
+                }
+                target.classList.add('active');
+                selectedPlayerId = target.dataset.playerId;
+                removeButton.dataset.teamId = document.querySelector('.team-list-item.active').dataset.teamId;
+                removeButton.style.display = 'inline-block';
+            }
+        }
+
+        // --- Handle "Remove Selected Player" button click ---
+        if (target.id === 'remove-selected-player-button') {
+            if (!selectedPlayerId) return;
+            const teamId = target.dataset.teamId;
+            if (confirm(`Are you sure you want to remove this player from the team?`)) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/teams/${teamId}/players/${selectedPlayerId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Failed to remove player.');
+                    alert('Player removed successfully.');
+                    const teamName = document.querySelector('.team-list-item.active').dataset.teamName;
+                    fetchAndDisplayTeamPlayers(teamId, teamName);
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
+        }
+
+        // --- Handle "Add Player" button click (to show modal) ---
+        if (target.id === 'show-add-player-modal-button') {
+            const teamId = target.dataset.teamId;
+            selectedTeamId = teamId;
+
+            availablePlayersList.innerHTML = '<p>Loading available players...</p>';
+            addSelectedPlayerButton.disabled = true;
+            selectedAvailablePlayerId = null;
+
+            if (!addPlayerModal) {
+                addPlayerModal = new bootstrap.Modal(addPlayerModalElement);
+            }
+            addPlayerModal.show();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/players/available?teamId=${teamId}`);
+                if (!response.ok) throw new Error('Could not fetch available players.');
+                const availablePlayers = await response.json();
+
+                let playersHtml = '';
+                if (availablePlayers.length === 0) {
+                    playersHtml = '<p class="text-muted">No available players found.</p>';
+                } else {
+                    availablePlayers.forEach(player => {
+                        playersHtml += `<a href="#" class="list-group-item list-group-item-action available-player-item" data-player-id="${player.idPlayer}">${player.name} (${player.nickname})</a>`;
+                    });
+                }
+                availablePlayersList.innerHTML = playersHtml;
+            } catch (error) {
+                availablePlayersList.innerHTML = `<p class="text-danger">${error.message}</p>`;
+            }
+        }
+
+        // Handle other clicks like edit/delete team
+        if (target.classList.contains('edit-team')) handleEditTeam(target.dataset.id);
+        else if (target.classList.contains('delete-team')) handleDeleteTeam(target.dataset.id);
+    });
+
+    // --- Logic for the modal itself ---
+    addPlayerModalElement.addEventListener('click', (e) => {
+        const target = e.target;
+
+        // Handle selecting a player from the available list
+        if (target.classList.contains('available-player-item')) {
+            e.preventDefault();
+            const currentlySelected = addPlayerModalElement.querySelector('.available-player-item.active');
+            if (currentlySelected) {
+                currentlySelected.classList.remove('active');
+            }
+            target.classList.add('active');
+            selectedAvailablePlayerId = target.dataset.playerId;
+            addSelectedPlayerButton.disabled = false;
+        }
+
+        // Handle the final "Add Selected Player" button click
+        if (target.id === 'add-selected-player-button') {
+            if (!selectedAvailablePlayerId || !selectedTeamId) return;
+
+            fetch(`${API_BASE}/api/teams/${selectedTeamId}/players/${selectedAvailablePlayerId}`, {
+                method: 'POST'
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add player to the team.');
+                }
+                return response.json();
+            }).then(() => {
+                alert('Player added successfully!');
+                addPlayerModal.hide();
+                const teamName = document.querySelector('.team-list-item.active').dataset.teamName;
+                fetchAndDisplayTeamPlayers(selectedTeamId, teamName);
+            }).catch(error => {
+                alert(`Error: ${error.message}`);
+            });
         }
     });
 
@@ -307,34 +428,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!playersResponse.ok) throw new Error(`Failed to fetch players for team ${teamName}`);
             const players = await playersResponse.json();
 
-        let detailsHtml = `
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Players in ${teamName}</h5>
-                    <div>
-                        <button class="btn btn-secondary btn-sm me-2 edit-team" data-id="${teamId}">Edit Team</button>
-                        <button class="btn btn-danger btn-sm delete-team" data-id="${teamId}">Delete Team</button>
+            let detailsHtml = `
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Players in ${teamName}</h5>
+                        <div>
+                            <button class="btn btn-secondary btn-sm me-2 edit-team" data-id="${teamId}">Edit Team</button>
+                            <button class="btn btn-danger btn-sm delete-team" data-id="${teamId}">Delete Team</button>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-        `;
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush" id="team-player-list">`;
 
-        if (players.length === 0) {
-            detailsHtml += '<p>This team has no players yet.</p>';
-        } else {
-            detailsHtml += '<ul class="list-group list-group-flush">';
-            players.forEach(player => {
-                detailsHtml += `<li class="list-group-item">${player.name} (${player.nickname}) - ${player.role}</li>`;
-            });
-            detailsHtml += '</ul>';
+            if (players.length === 0) {
+                detailsHtml += '<li class="list-group-item">This team has no players yet.</li>';
+            } else {
+                players.forEach(player => {
+                    detailsHtml += `
+                        <a href="#" class="list-group-item list-group-item-action team-member-item" data-player-id="${player.idPlayer}">
+                            ${player.name} (${player.nickname}) - Role: ${player.role}
+                        </a>`;
+                });
+            }
+
+            detailsHtml += `
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-success btn-sm" id="show-add-player-modal-button" data-team-id="${teamId}">Add Player</button>
+                        <button class="btn btn-danger btn-sm" id="remove-selected-player-button" style="display: none;">Remove Selected Player</button>
+                    </div>
+                </div>`;
+            teamDetailsContainer.innerHTML = detailsHtml;
+
+        } catch (error) {
+            teamDetailsContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
         }
-        detailsHtml += '</div></div>';
-        teamDetailsContainer.innerHTML = detailsHtml;
-
-    } catch (error) {
-        teamDetailsContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
     }
-}
 
     async function fetchAndDisplayPlayers() {
         playersList.innerHTML = '<p>Loading players...</p>';
