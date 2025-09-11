@@ -5,9 +5,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.warzone.matches.entities.persistence.Player;
 import org.warzone.matches.entities.persistence.Teams;
 
 import java.io.IOException;
+import java.util.Collections;
 import org.warzone.matches.services.TeamsService;
 
 import java.util.List;
@@ -45,7 +47,7 @@ public class TeamsController {
     @GetMapping("/{id}/logo")
     public ResponseEntity<byte[]> getTeamLogo(@PathVariable int id) {
         return teamsService.getTeamById(id)
-                .map(team -> {
+                .<ResponseEntity<byte[]>>map(team -> {
                     if (team.getLogo() != null && team.getLogo().length > 0) {
                         return ResponseEntity.ok()
                                 .contentType(MediaType.IMAGE_JPEG) // Assuming JPEG, could be PNG etc.
@@ -83,6 +85,13 @@ public class TeamsController {
                     teamsService.deleteTeam(id);
                     return ResponseEntity.ok().<Void>build();
                 })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/players")
+    public ResponseEntity<List<Player>> getPlayersForTeam(@PathVariable int id) {
+        return teamsService.getTeamById(id)
+                .map(team -> ResponseEntity.ok(team.getPlayers()))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

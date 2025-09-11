@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // List containers
     const tournamentsListContainer = document.getElementById('tournaments-list-container');
-    const teamsList = document.getElementById('teams-list');
+    const teamsListContainer = document.getElementById('teams-list-container');
+    const teamDetailsContainer = document.getElementById('team-details-container');
     const playersList = document.getElementById('players-list');
 
     // Forms
@@ -136,18 +137,31 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (target.classList.contains('delete-player')) handleDeletePlayer(target.dataset.id);
     });
 
-    teamsList.addEventListener('click', (e) => {
-        const target = e.target;
-        const listItem = target.closest('.list-group-item');
-        if (listItem && !target.closest('.player-actions')) {
-            const currentlySelected = teamsList.querySelector('.selected');
-            if (currentlySelected && currentlySelected !== listItem) {
-                currentlySelected.classList.remove('selected');
+    // New listener for the master team list
+    teamsListContainer.addEventListener('click', e => {
+        e.preventDefault();
+        const link = e.target.closest('.team-list-item');
+        if (link) {
+            const currentActive = teamsListContainer.querySelector('.active');
+            if (currentActive) {
+                currentActive.classList.remove('active');
             }
-            listItem.classList.toggle('selected');
+            link.classList.add('active');
+
+            const teamId = link.dataset.teamId;
+            const teamName = link.dataset.teamName;
+            fetchAndDisplayTeamPlayers(teamId, teamName);
         }
-        if (target.classList.contains('edit-team')) handleEditTeam(target.dataset.id);
-        else if (target.classList.contains('delete-team')) handleDeleteTeam(target.dataset.id);
+    });
+
+    // New listener for the team details pane (for edit/delete buttons)
+    teamDetailsContainer.addEventListener('click', e => {
+        const target = e.target;
+        if (target.classList.contains('edit-team')) {
+            handleEditTeam(target.dataset.id);
+        } else if (target.classList.contains('delete-team')) {
+            handleDeleteTeam(target.dataset.id);
+        }
     });
 
     tournamentsListContainer.addEventListener('click', (e) => {
@@ -229,34 +243,78 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAndDisplayTeams() {
-        teamsList.innerHTML = '<p>Loading teams...</p>';
+        teamsListContainer.innerHTML = '<h2>Teams</h2><p>Loading...</p>';
+        // Clear details view when reloading the list
+        teamDetailsContainer.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Team Details</h5>
+                    <p class="card-text">Select a team from the list to see its players.</p>
+                </div>
+            </div>`;
         try {
             const response = await fetch(`${API_BASE}/api/teams`);
             if (!response.ok) throw new Error('Failed to fetch teams');
             const teams = await response.json();
 
-            teamsList.innerHTML = '';
+            let listHtml = '<h2>Teams</h2><ul class="list-group">';
             if (teams.length === 0) {
-                teamsList.innerHTML = '<li class="list-group-item">No teams found.</li>';
+                listHtml += '<li class="list-group-item">No teams found.</li>';
             } else {
                 teams.forEach(team => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    const info = document.createElement('span');
-                    info.className = 'd-flex align-items-center';
-                    info.innerHTML = `<img src="${API_BASE}/api/teams/${team.idTeams}/logo" alt="" style="width: 40px; height: 40px; margin-right: 15px;" onerror="this.style.display='none'"> ${team.name}`;
-                    const actions = document.createElement('div');
-                    actions.className = 'player-actions';
-                    actions.innerHTML = `<button class="btn btn-sm btn-secondary me-2 edit-team" data-id="${team.idTeams}">Edit</button><button class="btn btn-sm btn-danger delete-team" data-id="${team.idTeams}">Delete</button>`;
-                    li.appendChild(info);
-                    li.appendChild(actions);
-                    teamsList.appendChild(li);
+                    listHtml += `
+                        <a href="#" class="list-group-item list-group-item-action team-list-item" data-team-id="${team.idTeams}" data-team-name="${team.name}">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h5 class="mb-1 d-flex align-items-center">
+                                    <img src="${API_BASE}/api/teams/${team.idTeams}/logo" alt="" class="me-2" style="width: 30px; height: 30px; border-radius: 50%;" onerror="this.style.display='none'">
+                                    ${team.name}
+                                </h5>
+                            </div>
+                        </a>`;
                 });
             }
+            listHtml += '</ul>';
+            teamsListContainer.innerHTML = listHtml;
         } catch (error) {
-            teamsList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
+            teamsListContainer.innerHTML = `<h2>Teams</h2><p class="text-danger">${error.message}</p>`;
         }
     }
+
+    async function fetchAndDisplayTeamPlayers(teamId, teamName) {
+        teamDetailsContainer.innerHTML = '<p>Loading players...</p>';
+        try {
+            const playersResponse = await fetch(`${API_BASE}/api/teams/${teamId}/players`);
+            if (!playersResponse.ok) throw new Error(`Failed to fetch players for team ${teamName}`);
+            const players = await playersResponse.json();
+
+        let detailsHtml = `
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Players in ${teamName}</h5>
+                    <div>
+                        <button class="btn btn-secondary btn-sm me-2 edit-team" data-id="${teamId}">Edit Team</button>
+                        <button class="btn btn-danger btn-sm delete-team" data-id="${teamId}">Delete Team</button>
+                    </div>
+                </div>
+                <div class="card-body">
+        `;
+
+        if (players.length === 0) {
+            detailsHtml += '<p>This team has no players yet.</p>';
+        } else {
+            detailsHtml += '<ul class="list-group list-group-flush">';
+            players.forEach(player => {
+                detailsHtml += `<li class="list-group-item">${player.name} (${player.nickname}) - ${player.role}</li>`;
+            });
+            detailsHtml += '</ul>';
+        }
+        detailsHtml += '</div></div>';
+        teamDetailsContainer.innerHTML = detailsHtml;
+
+    } catch (error) {
+        teamDetailsContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    }
+}
 
     async function fetchAndDisplayPlayers() {
         playersList.innerHTML = '<p>Loading players...</p>';
@@ -319,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE}/api/teams/${teamId}`, { method: 'DELETE' });
             if (!response.ok) throw new Error('Failed to delete team.');
             alert('Team deleted successfully!');
+            // After deleting, refresh the whole teams view
             fetchAndDisplayTeams();
         } catch (error) {
             alert(`Error: ${error.message}`);
@@ -424,9 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleMultipartSubmit(event, url, formData, method, successCallback) {
         event.preventDefault();
-        // The 'body' of a fetch request with multipart/form-data can't be sent with PUT in some environments.
-        // A common workaround is to use POST and add a method override field.
-        // For this app, we will assume the server supports PUT with multipart.
         try {
             const response = await fetch(url, { method: method, body: formData });
             if (!response.ok) throw new Error(await response.text());
@@ -450,7 +506,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
             });
         } else {
-            // Remove status for create, as API handles it
             delete body.status;
             handleJsonSubmit(e, `${API_BASE}/api/tournaments`, body, 'POST', () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
         }
