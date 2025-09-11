@@ -1,6 +1,7 @@
 package org.warzone.matches.entities.persistence;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,7 @@ public class Teams {
 	@Column(name = "LOGO", columnDefinition="BLOB")
 	private byte[] logo;
 
+    @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
         name = "TEAM",
