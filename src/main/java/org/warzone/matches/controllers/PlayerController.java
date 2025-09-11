@@ -20,6 +20,11 @@ public class PlayerController {
         return playerService.getAllPlayers();
     }
 
+    @GetMapping("/available")
+    public List<Player> getAvailablePlayers(@RequestParam int teamId) {
+        return playerService.getAvailablePlayers(teamId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable int id) {
         return playerService.getPlayerById(id)

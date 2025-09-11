@@ -29,4 +29,8 @@ public class PlayerService {
     public void deletePlayer(int id) {
         playerRepository.deleteById(id);
     }
+
+    public List<Player> getAvailablePlayers(int teamId) {
+        return playerRepository.findAvailablePlayers(teamId);
+    }
 }
