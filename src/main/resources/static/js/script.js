@@ -199,13 +199,131 @@ document.addEventListener('DOMContentLoaded', () => {
             tournamentsListContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
         }
     }
-    async function fetchTournamentSummary(tournamentId) { /* ... unchanged ... */ }
-    async function fetchAndDisplayTeams() { /* ... unchanged ... */ }
-    async function fetchAndDisplayPlayers() { /* ... unchanged ... */ }
+    async function fetchTournamentSummary(tournamentId) {
+        const summaryContainer = document.getElementById('tournament-summary-container');
+        summaryContainer.innerHTML = '<p>Loading summary...</p>';
+        try {
+            const response = await fetch(`${API_BASE}/api/tournaments/${tournamentId}/summary`);
+            if (!response.ok) throw new Error('Failed to fetch summary');
+            const summary = await response.json();
+
+            if (!summary || summary.length === 0) {
+                summaryContainer.innerHTML = '<p>No summary data available.</p>';
+                return;
+            }
+            let tableHtml = '<h3>Tournament Summary</h3><table class="table table-striped"><thead><tr><th>Logo</th><th>Team</th><th>Members</th><th>Total Kills</th></tr></thead><tbody>';
+            summary.forEach(ts => {
+                tableHtml += `<tr>
+                    <td><img src="${API_BASE}/api/teams/${ts.teamId}/logo" alt="${ts.teamName}" style="width: 50px; height: 50px;" onerror="this.style.display='none'"></td>
+                    <td>${ts.teamName}</td>
+                    <td>${ts.members.join(', ')}</td>
+                    <td>${ts.totalKills}</td>
+                </tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            summaryContainer.innerHTML = tableHtml;
+
+        } catch (error) {
+            summaryContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
+        }
+    }
+
+    async function fetchAndDisplayTeams() {
+        teamsList.innerHTML = '<p>Loading teams...</p>';
+        try {
+            const response = await fetch(`${API_BASE}/api/teams`);
+            if (!response.ok) throw new Error('Failed to fetch teams');
+            const teams = await response.json();
+
+            teamsList.innerHTML = '';
+            if (teams.length === 0) {
+                teamsList.innerHTML = '<li class="list-group-item">No teams found.</li>';
+            } else {
+                teams.forEach(team => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    const info = document.createElement('span');
+                    info.className = 'd-flex align-items-center';
+                    info.innerHTML = `<img src="${API_BASE}/api/teams/${team.idTeams}/logo" alt="" style="width: 40px; height: 40px; margin-right: 15px;" onerror="this.style.display='none'"> ${team.name}`;
+                    const actions = document.createElement('div');
+                    actions.className = 'player-actions';
+                    actions.innerHTML = `<button class="btn btn-sm btn-secondary me-2 edit-team" data-id="${team.idTeams}">Edit</button><button class="btn btn-sm btn-danger delete-team" data-id="${team.idTeams}">Delete</button>`;
+                    li.appendChild(info);
+                    li.appendChild(actions);
+                    teamsList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            teamsList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
+        }
+    }
+
+    async function fetchAndDisplayPlayers() {
+        playersList.innerHTML = '<p>Loading players...</p>';
+        try {
+            const response = await fetch(`${API_BASE}/api/players`);
+            if (!response.ok) throw new Error('Failed to fetch players');
+            const players = await response.json();
+
+            playersList.innerHTML = '';
+            if (players.length === 0) {
+                playersList.innerHTML = '<li class="list-group-item">No players found.</li>';
+            } else {
+                players.forEach(player => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                    const playerInfo = document.createElement('span');
+                    playerInfo.textContent = `${player.name} (${player.nickname}) - Role: ${player.role}`;
+
+                    const buttonsDiv = document.createElement('div');
+                    buttonsDiv.className = 'player-actions';
+
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-sm btn-secondary me-2 edit-player';
+                    editButton.textContent = 'Edit';
+                    editButton.dataset.id = player.idPlayer;
+                    buttonsDiv.appendChild(editButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-sm btn-danger delete-player';
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.dataset.id = player.idPlayer;
+                    buttonsDiv.appendChild(deleteButton);
+
+                    li.appendChild(playerInfo);
+                    li.appendChild(buttonsDiv);
+                    playersList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            playersList.innerHTML = `<li class="list-group-item text-danger">${error.message}</li>`;
+        }
+    }
 
     // --- Delete Logic ---
-    async function handleDeletePlayer(playerId) { /* ... unchanged ... */ }
-    async function handleDeleteTeam(teamId) { /* ... unchanged ... */ }
+    async function handleDeletePlayer(playerId) {
+        if (!confirm(`Are you sure you want to delete player ${playerId}?`)) return;
+        try {
+            const response = await fetch(`${API_BASE}/api/players/${playerId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete player.');
+            alert('Player deleted successfully!');
+            fetchAndDisplayPlayers();
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+    async function handleDeleteTeam(teamId) {
+        if (!confirm(`Are you sure you want to delete team ${teamId}?`)) return;
+        try {
+            const response = await fetch(`${API_BASE}/api/teams/${teamId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete team.');
+            alert('Team deleted successfully!');
+            fetchAndDisplayTeams();
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
     async function handleDeleteTournament(tournamentId) {
         if (!confirm(`Are you sure you want to delete tournament ${tournamentId}?`)) return;
         try {
@@ -219,8 +337,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Edit Logic ---
-    async function handleEditPlayer(playerId) { /* ... unchanged ... */ }
-    async function handleEditTeam(teamId) { /* ... unchanged ... */ }
+    async function handleEditPlayer(playerId) {
+        try {
+            const response = await fetch(`${API_BASE}/api/players/${playerId}`);
+            if (!response.ok) throw new Error('Failed to fetch player data.');
+            const player = await response.json();
+            hiddenPlayerId.value = player.idPlayer;
+            document.getElementById('player-name').value = player.name;
+            document.getElementById('player-nickname').value = player.nickname;
+            document.getElementById('player-role').value = player.role;
+            playerFormTitle.textContent = 'Edit Player';
+            playerFormSubmitButton.textContent = 'Update';
+            showView('registerPlayer');
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+    async function handleEditTeam(teamId) {
+        try {
+            const response = await fetch(`${API_BASE}/api/teams/${teamId}`);
+            if (!response.ok) throw new Error('Failed to fetch team data.');
+            const team = await response.json();
+            hiddenTeamId.value = team.idTeams;
+            document.getElementById('team-name').value = team.name;
+            // Note: Does not show existing logo, just allows replacing it.
+            teamFormTitle.textContent = 'Edit Team';
+            teamFormSubmitButton.textContent = 'Update';
+            showView('registerTeam');
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
     async function handleEditTournament(tournamentId) {
         try {
             const response = await fetch(`${API_BASE}/api/tournaments/${tournamentId}`);
@@ -238,8 +385,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Form Reset Logic ---
-    function resetPlayerForm() { /* ... unchanged ... */ }
-    function resetTeamForm() { /* ... unchanged ... */ }
+    function resetPlayerForm() {
+        playerForm.reset();
+        hiddenPlayerId.value = '';
+        playerFormTitle.textContent = 'Register Player';
+        playerFormSubmitButton.textContent = 'Register';
+    }
+    function resetTeamForm() {
+        teamForm.reset();
+        hiddenTeamId.value = '';
+        teamFormTitle.textContent = 'Register Team';
+        teamFormSubmitButton.textContent = 'Register';
+    }
     function resetTournamentForm() {
         tournamentForm.reset();
         hiddenTournamentId.value = '';
@@ -248,8 +405,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Form Submission Logic ---
-    async function handleJsonSubmit(event, url, body, method, successCallback) { /* ... unchanged ... */ }
-    async function handleMultipartSubmit(event, url, formData, method, successCallback) { /* ... unchanged ... */ }
+    async function handleJsonSubmit(event, url, body, method, successCallback) {
+        event.preventDefault();
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) throw new Error(await response.text());
+            alert('Operation successful!');
+            event.target.reset();
+            successCallback();
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    async function handleMultipartSubmit(event, url, formData, method, successCallback) {
+        event.preventDefault();
+        // The 'body' of a fetch request with multipart/form-data can't be sent with PUT in some environments.
+        // A common workaround is to use POST and add a method override field.
+        // For this app, we will assume the server supports PUT with multipart.
+        try {
+            const response = await fetch(url, { method: method, body: formData });
+            if (!response.ok) throw new Error(await response.text());
+            alert('Operation successful!');
+            event.target.reset();
+            successCallback();
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
 
     tournamentForm.addEventListener('submit', (e) => {
         const tournamentId = hiddenTournamentId.value;
@@ -263,11 +450,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
             });
         } else {
+            // Remove status for create, as API handles it
+            delete body.status;
             handleJsonSubmit(e, `${API_BASE}/api/tournaments`, body, 'POST', () => handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments));
         }
     });
-    teamForm.addEventListener('submit', (e) => { /* ... unchanged ... */ });
-    playerForm.addEventListener('submit', (e) => { /* ... unchanged ... */ });
+    teamForm.addEventListener('submit', (e) => {
+        const teamId = hiddenTeamId.value;
+        const formData = new FormData();
+        formData.append('name', document.getElementById('team-name').value);
+        const logoInput = document.getElementById('team-logo');
+        if (logoInput.files.length > 0) {
+            formData.append('logo', logoInput.files[0]);
+        }
+
+        if (teamId) {
+            handleMultipartSubmit(e, `${API_BASE}/api/teams/${teamId}`, formData, 'PUT', () => {
+                resetTeamForm();
+                handleNavClick('teams', 'Teams', fetchAndDisplayTeams);
+            });
+        } else {
+            handleMultipartSubmit(e, `${API_BASE}/api/teams`, formData, 'POST', () => handleNavClick('teams', 'Teams', fetchAndDisplayTeams));
+        }
+    });
+    playerForm.addEventListener('submit', (e) => {
+        const playerId = hiddenPlayerId.value;
+        const body = {
+            name: document.getElementById('player-name').value,
+            nickname: document.getElementById('player-nickname').value,
+            role: document.getElementById('player-role').value,
+        };
+
+        if (playerId) {
+            handleJsonSubmit(e, `${API_BASE}/api/players/${playerId}`, body, 'PUT', () => {
+                resetPlayerForm();
+                handleNavClick('players', 'Players', fetchAndDisplayPlayers);
+            });
+        } else {
+            handleJsonSubmit(e, `${API_BASE}/api/players`, body, 'POST', () => handleNavClick('players', 'Players', fetchAndDisplayPlayers));
+        }
+    });
 
     // --- Initial Setup ---
     handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
