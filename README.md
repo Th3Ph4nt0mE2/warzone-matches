@@ -35,8 +35,8 @@ This project includes two user interfaces for viewing tournament data.
 
 ### 2. Thymeleaf UI
 
-*   **URL:** `http://localhost:8080/view/tournaments`
-*   **Description:** A server-side rendered UI built with Spring Boot and Thymeleaf. This UI supports viewing tournaments and their summaries, as well as registering new tournaments, teams, and players through a navigation menu.
+*   **URL:** `http://localhost:8080/view/tournaments` (and other `/view/*` endpoints)
+*   **Description:** A server-side rendered UI built with Spring Boot and Thymeleaf. It now mirrors the functionality of the JavaScript UI, providing list views for tournaments, teams, and players, as well as forms to create new entries for each. It also supports uploading and displaying team logos.
 *   **Source code:**
     *   Controller: `src/main/java/org/warzone/matches/controllers/ViewController.java`
     *   Templates: `src/main/resources/templates/`
