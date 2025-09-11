@@ -3,14 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Element Selectors ---
     const navLinks = {
+        summary: document.getElementById('nav-summary'),
         tournaments: document.getElementById('nav-tournaments'),
         teams: document.getElementById('nav-teams'),
         players: document.getElementById('nav-players'),
+        settings: document.getElementById('nav-settings'),
     };
     const views = {
+        summary: document.getElementById('summary-view'),
         tournaments: document.getElementById('tournaments-view'),
         teams: document.getElementById('teams-view'),
         players: document.getElementById('players-view'),
+        settings: document.getElementById('settings-view'),
         registerTournament: document.getElementById('register-tournament-view'),
         registerTeam: document.getElementById('register-team-view'),
         registerPlayer: document.getElementById('register-player-view'),
@@ -92,6 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
     navLinks.players.addEventListener('click', (e) => {
         e.preventDefault();
         handleNavClick('players', 'Players', fetchAndDisplayPlayers);
+    });
+
+    navLinks.summary.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleNavClick('summary', 'Summary', null); // No fetch callback for summary yet
+    });
+
+    navLinks.settings.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleNavClick('settings', 'Settings', null); // No fetch callback for settings yet
     });
 
     // --- "Create" Button Logic ---
@@ -243,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAndDisplayTeams() {
-        teamsListContainer.innerHTML = '<h2>Teams</h2><p>Loading...</p>';
+        teamsListContainer.innerHTML = '<p>Loading teams...</p>';
         // Clear details view when reloading the list
         teamDetailsContainer.innerHTML = `
             <div class="card">
@@ -257,7 +271,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to fetch teams');
             const teams = await response.json();
 
-            let listHtml = '<h2>Teams</h2><ul class="list-group">';
+            let listHtml = `
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Teams</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">`;
+
             if (teams.length === 0) {
                 listHtml += '<li class="list-group-item">No teams found.</li>';
             } else {
@@ -273,10 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </a>`;
                 });
             }
-            listHtml += '</ul>';
+            listHtml += '</ul></div>';
             teamsListContainer.innerHTML = listHtml;
         } catch (error) {
-            teamsListContainer.innerHTML = `<h2>Teams</h2><p class="text-danger">${error.message}</p>`;
+            teamsListContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
         }
     }
 
@@ -547,5 +567,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Setup ---
-    handleNavClick('tournaments', 'Tournaments', fetchAndDisplayTournaments);
+    handleNavClick('summary', 'Summary', null); // Load Summary view by default
 });
