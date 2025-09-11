@@ -45,3 +45,16 @@
     font-weight: bold;
     background-color: #e9ecef;
 }
+
+/* Player List Action Styles */
+.player-actions {
+    visibility: hidden; /* Hide buttons by default */
+}
+
+.list-group-item.selected {
+    background-color: #e9ecef; /* Highlight for selected row */
+}
+
+.list-group-item.selected .player-actions {
+    visibility: visible; /* Show buttons on selected row */
+}
