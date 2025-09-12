@@ -35,7 +35,7 @@ public class TeamsService {
         teamsRepository.deleteById(id);
     }
 
-    public Optional<Teams> addPlayerToTeam(int teamId, int playerId) {
+    public Optional<Player> addPlayerToTeam(int teamId, int playerId) {
         Optional<Teams> teamOptional = teamsRepository.findById(teamId);
         Optional<Player> playerOptional = playerRepository.findById(playerId);
 
@@ -43,26 +43,23 @@ public class TeamsService {
             Teams team = teamOptional.get();
             Player player = playerOptional.get();
 
-            if (!team.getPlayers().contains(player)) {
-                team.getPlayers().add(player);
-                teamsRepository.save(team);
-            }
-            return Optional.of(team);
+            player.setTeam(team);
+            playerRepository.save(player);
+            return Optional.of(player);
         }
         return Optional.empty();
     }
 
-    public Optional<Teams> removePlayerFromTeam(int teamId, int playerId) {
-        Optional<Teams> teamOptional = teamsRepository.findById(teamId);
+    public Optional<Player> removePlayerFromTeam(int teamId, int playerId) {
+        Optional<Player> playerOptional = playerRepository.findById(playerId);
 
-        if (teamOptional.isPresent()) {
-            Teams team = teamOptional.get();
-            boolean removed = team.getPlayers().removeIf(player -> player.getIdPlayer() == playerId);
-
-            if (removed) {
-                teamsRepository.save(team);
+        if (playerOptional.isPresent()) {
+            Player player = playerOptional.get();
+            if (player.getTeam() != null && player.getTeam().getIdTeams() == teamId) {
+                player.setTeam(null);
+                playerRepository.save(player);
             }
-            return Optional.of(team);
+            return Optional.of(player);
         }
         return Optional.empty();
     }

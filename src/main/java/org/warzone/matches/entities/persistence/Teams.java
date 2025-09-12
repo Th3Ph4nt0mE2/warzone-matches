@@ -1,7 +1,6 @@
 package org.warzone.matches.entities.persistence;
 
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,9 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -31,13 +28,7 @@ public class Teams {
 	@Column(name = "LOGO", columnDefinition="BLOB")
 	private byte[] logo;
 
-    @JsonManagedReference
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "TEAM",
-        joinColumns = @JoinColumn(name = "ID_TEAMS"),
-        inverseJoinColumns = @JoinColumn(name = "ID_PLAYER")
-    )
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Player> players;
 
 	public int getIdTeams() {

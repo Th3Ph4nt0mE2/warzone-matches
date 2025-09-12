@@ -21,8 +21,8 @@ public class PlayerController {
     }
 
     @GetMapping("/available")
-    public List<Player> getAvailablePlayers(@RequestParam int teamId) {
-        return playerService.getAvailablePlayers(teamId);
+    public List<Player> getAvailablePlayers() {
+        return playerService.getAvailablePlayers();
     }
 
     @GetMapping("/{id}")

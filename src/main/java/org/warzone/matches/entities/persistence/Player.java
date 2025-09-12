@@ -1,13 +1,13 @@
 package org.warzone.matches.entities.persistence;
 
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,9 +28,9 @@ public class Player {
 	@Column(name = "ROLE")
 	private String role;
 	
-    @JsonBackReference
-    @ManyToMany(mappedBy = "players")
-    private List<Teams> teams;
+    @ManyToOne
+    @JoinColumn(name = "ID_TEAMS")
+    private Teams team;
 
 	public int getIdPlayer() {
 		return idPlayer;
@@ -64,11 +64,11 @@ public class Player {
 		this.role = role;
 	}
 
-	public List<Teams> getTeams() {
-		return teams;
+	public Teams getTeam() {
+		return team;
 	}
 
-	public void setTeams(List<Teams> teams) {
-		this.teams = teams;
+	public void setTeam(Teams team) {
+		this.team = team;
 	}
 }

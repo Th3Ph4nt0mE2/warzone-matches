@@ -96,14 +96,14 @@ public class TeamsController {
     }
 
     @PostMapping("/{teamId}/players/{playerId}")
-    public ResponseEntity<Teams> addPlayerToTeam(@PathVariable int teamId, @PathVariable int playerId) {
+    public ResponseEntity<Player> addPlayerToTeam(@PathVariable int teamId, @PathVariable int playerId) {
         return teamsService.addPlayerToTeam(teamId, playerId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{teamId}/players/{playerId}")
-    public ResponseEntity<Teams> removePlayerFromTeam(@PathVariable int teamId, @PathVariable int playerId) {
+    public ResponseEntity<Player> removePlayerFromTeam(@PathVariable int teamId, @PathVariable int playerId) {
         return teamsService.removePlayerFromTeam(teamId, playerId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
