@@ -57,7 +57,8 @@ public class TournamentService {
 
         Map<Teams, TeamSummaryDTO> teamSummaries = new HashMap<>();
         playerKills.forEach((player, kills) -> {
-            player.getTeams().forEach(team -> {
+            Teams team = player.getTeam();
+            if (team != null) {
                 TeamSummaryDTO summary = teamSummaries.computeIfAbsent(
                     team,
                     t -> new TeamSummaryDTO(t.getIdTeams(), t.getName(), 0L, new ArrayList<>())
@@ -66,7 +67,7 @@ public class TournamentService {
                 if (!summary.getPlayers().contains(player.getName())) {
                     summary.getPlayers().add(player.getName());
                 }
-            });
+            }
         });
 
         return teamSummaries.values().stream()
