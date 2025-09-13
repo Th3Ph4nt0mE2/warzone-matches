@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addPlayerModal.show();
 
             try {
-                const response = await fetch(`${API_BASE}/api/players/available`);
+                const response = await fetch(`${API_BASE}/api/players/available?teamId=${teamId}`);
                 if (!response.ok) throw new Error('Could not fetch available players.');
                 const availablePlayers = await response.json();
 

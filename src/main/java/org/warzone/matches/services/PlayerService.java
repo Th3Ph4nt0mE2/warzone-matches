@@ -30,7 +30,7 @@ public class PlayerService {
         playerRepository.deleteById(id);
     }
 
-    public List<Player> getAvailablePlayers() {
-        return playerRepository.findByTeamIsNull();
+    public List<Player> getAvailablePlayers(int teamId) {
+        return playerRepository.findAvailableForTeam(teamId);
     }
 }
