@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "PLAYER_MATCH_STATS", schema = "WARZONE_MATCHES")
+@Table(name = "PLAYER_MATCH_STATS")
 public class PlayerMatchStats {
 
 	@Id

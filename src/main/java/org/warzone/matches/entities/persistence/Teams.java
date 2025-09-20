@@ -1,19 +1,18 @@
 package org.warzone.matches.entities.persistence;
 
-import java.util.List;
-import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 
 @Entity
-@Table(name = "TEAMS", schema = "WARZONE_MATCHES")
+@Table(name = "TEAMS")
 public class Teams {
 
 	@Id
@@ -28,8 +27,9 @@ public class Teams {
 	@Column(name = "LOGO", columnDefinition="BLOB")
 	private byte[] logo;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Player> players;
+    @OneToMany(mappedBy = "mainTeam")
+    @JsonManagedReference
+    private List<Player> mainRoster;
 
 	public int getIdTeams() {
 		return idTeams;
@@ -47,14 +47,6 @@ public class Teams {
 		this.name = name;
 	}
 
-	public List<Player> getPlayers() {
-		return players;
-	}
-
-	public void setPlayers(List<Player> players) {
-		this.players = players;
-	}
-
 	public byte[] getLogo() {
 		return logo;
 	}
@@ -62,4 +54,12 @@ public class Teams {
 	public void setLogo(byte[] logo) {
 		this.logo = logo;
 	}
+
+    public List<Player> getMainRoster() {
+        return mainRoster;
+    }
+
+    public void setMainRoster(List<Player> mainRoster) {
+        this.mainRoster = mainRoster;
+    }
 }

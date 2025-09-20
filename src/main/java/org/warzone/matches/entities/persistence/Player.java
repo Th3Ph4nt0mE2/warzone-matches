@@ -1,6 +1,6 @@
 package org.warzone.matches.entities.persistence;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "PLAYER", schema = "WARZONE_MATCHES")
+@Table(name = "PLAYER")
 public class Player {
 
 	@Id
@@ -24,13 +24,11 @@ public class Player {
 	
 	@Column(name = "NICKNAME")
 	private String nickname;
-	
-	@Column(name = "ROLE")
-	private String role;
-	
+
     @ManyToOne
-    @JoinColumn(name = "ID_TEAMS")
-    private Teams team;
+    @JoinColumn(name = "MAIN_TEAM_ID")
+    @JsonBackReference // To prevent loops when serializing a Team's main roster
+    private Teams mainTeam;
 
 	public int getIdPlayer() {
 		return idPlayer;
@@ -55,20 +53,12 @@ public class Player {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	
-	public String getRole() {
-		return role;
-	}
-	
-	public void setRole(String role) {
-		this.role = role;
-	}
 
-	public Teams getTeam() {
-		return team;
-	}
+    public Teams getMainTeam() {
+        return mainTeam;
+    }
 
-	public void setTeam(Teams team) {
-		this.team = team;
-	}
+    public void setMainTeam(Teams mainTeam) {
+        this.mainTeam = mainTeam;
+    }
 }

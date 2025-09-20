@@ -5,13 +5,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.warzone.matches.entities.persistence.InscripcionTorneo;
 import org.warzone.matches.entities.persistence.Player;
 import org.warzone.matches.entities.persistence.Teams;
-
-import java.io.IOException;
-import java.util.Collections;
+import org.warzone.matches.services.InscripcionTorneoService;
+import org.warzone.matches.services.PlayerService;
 import org.warzone.matches.services.TeamsService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,6 +21,12 @@ public class TeamsController {
 
     @Autowired
     private TeamsService teamsService;
+
+    @Autowired
+    private InscripcionTorneoService inscripcionTorneoService;
+
+    @Autowired
+    private PlayerService playerService;
 
     @GetMapping
     public List<Teams> getAllTeams() {
@@ -88,24 +95,20 @@ public class TeamsController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}/players")
-    public ResponseEntity<List<Player>> getPlayersForTeam(@PathVariable int id) {
+    @GetMapping("/{id}/latest-roster")
+    public List<InscripcionTorneo> getLatestRoster(@PathVariable int id) {
+        return inscripcionTorneoService.getLatestRosterForTeam(id);
+    }
+
+    @GetMapping("/{id}/roster")
+    public ResponseEntity<List<org.warzone.matches.entities.persistence.Player>> getMainRoster(@PathVariable int id) {
         return teamsService.getTeamById(id)
-                .map(team -> ResponseEntity.ok(team.getPlayers()))
+                .map(team -> ResponseEntity.ok(team.getMainRoster()))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{teamId}/players/{playerId}")
-    public ResponseEntity<Player> addPlayerToTeam(@PathVariable int teamId, @PathVariable int playerId) {
-        return teamsService.addPlayerToTeam(teamId, playerId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{teamId}/players/{playerId}")
-    public ResponseEntity<Player> removePlayerFromTeam(@PathVariable int teamId, @PathVariable int playerId) {
-        return teamsService.removePlayerFromTeam(teamId, playerId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping("/{teamId}/players")
+    public Player createPlayerForTeam(@PathVariable int teamId, @RequestBody Player player) {
+        return playerService.createPlayerForTeam(player, teamId);
     }
 }
