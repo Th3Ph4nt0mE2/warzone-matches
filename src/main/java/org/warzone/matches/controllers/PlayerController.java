@@ -21,8 +21,8 @@ public class PlayerController {
     }
 
     @GetMapping("/available")
-    public List<Player> getAvailablePlayers(@RequestParam int teamId) {
-        return playerService.getAvailablePlayers(teamId);
+    public List<Player> getAvailablePlayers(@RequestParam String tournamentId) {
+        return playerService.getAvailablePlayers(tournamentId);
     }
 
     @GetMapping("/{id}")
@@ -43,7 +43,6 @@ public class PlayerController {
                 .map(player -> {
                     player.setName(playerDetails.getName());
                     player.setNickname(playerDetails.getNickname());
-                    player.setRole(playerDetails.getRole());
                     // Note: This does not handle updating the 'teams' relationship.
                     // That would require a more complex implementation.
                     Player updatedPlayer = playerService.savePlayer(player);

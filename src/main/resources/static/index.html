@@ -19,7 +19,6 @@
                 <a class="dropdown-item nav-link active" href="#" id="nav-summary">Summary</a>
                 <a class="dropdown-item nav-link" href="#" id="nav-tournaments">Tournaments</a>
                 <a class="dropdown-item nav-link" href="#" id="nav-teams">Teams</a>
-                <a class="dropdown-item nav-link" href="#" id="nav-players">Players</a>
                 <a class="dropdown-item nav-link" href="#" id="nav-settings">Settings</a>
             </div>
         </div>
@@ -38,38 +37,29 @@
             <!-- Tournaments View -->
             <div id="tournaments-view" style="display: none;">
                 <button class="btn btn-primary mb-3" id="show-register-tournament-form">Create Tournament</button>
-                <div id="tournaments-list-container">
-                    <!-- Tournament list and summary will be rendered here -->
+                <div class="row">
+                    <div class="col-md-4" id="tournaments-list-container">
+                        <!-- List of all tournaments will be rendered here -->
+                    </div>
+                    <div class="col-md-8" id="tournament-details-container">
+                        <!-- Details of selected tournament (teams, rosters) will be rendered here -->
+                        <p class="text-muted">Select a tournament to see its details.</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Teams View -->
+            <!-- Teams View (for managing main rosters) -->
             <div id="teams-view" style="display: none;">
                 <button class="btn btn-primary mb-3" id="show-register-team-form">Create Team</button>
                 <div class="row">
-                    <!-- Left Column: Teams List -->
-                    <div id="teams-list-container" class="col-md-4">
-                        <!-- Team list will be injected here by script.js -->
+                    <div class="col-md-4" id="teams-list-container">
+                        <!-- List of all teams will be rendered here -->
                     </div>
-                    <!-- Right Column: Team Details -->
-                    <div id="team-details-container" class="col-md-8">
-                        <!-- Player list for the selected team will be injected here -->
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Team Details</h5>
-                                <p class="card-text">Select a team from the list to see its players.</p>
-                            </div>
-                        </div>
+                    <div class="col-md-8" id="team-details-container">
+                        <!-- Details of selected team (main roster) will be rendered here -->
+                        <p class="text-muted">Select a team to see its main roster.</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Players View -->
-            <div id="players-view" style="display: none;">
-                <button class="btn btn-primary mb-3" id="show-register-player-form">Create Player</button>
-                <ul class="list-group" id="players-list">
-                    <!-- Players list will be rendered here -->
-                </ul>
             </div>
 
             <!-- Settings View -->
@@ -114,11 +104,11 @@
                 </form>
             </div>
 
-            <!-- Register Player View (now hidden and shown on demand) -->
+            <!-- Register Player View (repurposed for creating a player for a main team) -->
             <div id="register-player-view" style="display: none;">
-                <h2 id="player-form-title">Register Player</h2>
+                <h2 id="player-form-title">Create New Player</h2>
                 <form id="register-player-form">
-                    <input type="hidden" id="player-id-edit">
+                    <!-- The selected teamId is handled in script.js, no hidden input needed -->
                     <div class="mb-3">
                         <label for="player-name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="player-name" required>
@@ -127,11 +117,7 @@
                         <label for="player-nickname" class="form-label">Nickname</label>
                         <input type="text" class="form-control" id="player-nickname" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="player-role" class="form-label">Role</label>
-                        <input type="text" class="form-control" id="player-role" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="submit" class="btn btn-primary">Create Player</button>
                     <button type="button" class="btn btn-secondary" id="cancel-register-player">Cancel</button>
                 </form>
             </div>
@@ -148,8 +134,12 @@
                 </div>
                 <div class="modal-body">
                     <p>Select a player to add:</p>
-                    <div id="available-players-list" class="list-group">
+                    <div id="available-players-list" class="list-group" style="max-height: 200px; overflow-y: auto;">
                         <!-- Available players will be rendered here by script.js -->
+                    </div>
+                    <div class="mt-3">
+                        <label for="player-role-assign" class="form-label">Role:</label>
+                        <input type="text" class="form-control" id="player-role-assign" placeholder="e.g., Captain, Minion 1" required>
                     </div>
                 </div>
                 <div class="modal-footer">

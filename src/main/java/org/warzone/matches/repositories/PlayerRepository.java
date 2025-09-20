@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
 
-    @Query("SELECT p FROM Player p WHERE p.team IS NULL OR p.team.idTeams != :teamId")
-    List<Player> findAvailableForTeam(@Param("teamId") int teamId);
+    @Query("SELECT p FROM Player p WHERE p.idPlayer NOT IN (SELECT i.player.idPlayer FROM InscripcionTorneo i WHERE i.tournament.id = :tournamentId)")
+    List<Player> findAvailableForTournament(@Param("tournamentId") String tournamentId);
 }

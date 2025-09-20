@@ -57,13 +57,15 @@ public class TournamentService {
 
         Map<Teams, TeamSummaryDTO> teamSummaries = new HashMap<>();
         playerKills.forEach((player, kills) -> {
-            Teams team = player.getTeam();
-            if (team != null) {
+            Teams mainTeam = player.getMainTeam();
+            // We only include stats for players who have a main team assigned.
+            if (mainTeam != null) {
                 TeamSummaryDTO summary = teamSummaries.computeIfAbsent(
-                    team,
+                    mainTeam,
                     t -> new TeamSummaryDTO(t.getIdTeams(), t.getName(), 0L, new ArrayList<>())
                 );
                 summary.setTotalKills(summary.getTotalKills() + kills);
+                // The summary should list the players who contributed to the score.
                 if (!summary.getPlayers().contains(player.getName())) {
                     summary.getPlayers().add(player.getName());
                 }
