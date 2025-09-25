@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warzone Tournaments</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+        <div class="dropdown">
+            <button class="btn btn-dark navbar-brand" type="button" id="menu-toggle">
+                Warzone Manager &#9662;
+            </button>
+            <div class="dropdown-menu" id="main-dropdown-menu">
+                <a class="dropdown-item nav-link active" href="#" id="nav-summary">Summary</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-tournaments">Tournaments</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-teams">Teams</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-players">Players</a>
+                <a class="dropdown-item nav-link" href="#" id="nav-settings">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        <div id="app-content">
+            <h1 class="mb-4" id="view-title">Summary</h1>
+
+            <!-- Summary View -->
+            <div id="summary-view">
+                <h2>Welcome to the Warzone Manager</h2>
+                <p>This is the summary page. Use the menu to navigate to other sections.</p>
+            </div>
+
+            <!-- Tournaments View -->
+            <div id="tournaments-view" style="display: none;">
+                <button class="btn btn-primary mb-3" id="show-register-tournament-form">Create Tournament</button>
+                <div id="tournaments-list-container">
+                    <!-- Tournament list and summary will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Teams View -->
+            <div id="teams-view" style="display: none;">
+                <button class="btn btn-primary mb-3" id="show-register-team-form">Create Team</button>
+                <div class="row">
+                    <!-- Left Column: Teams List -->
+                    <div id="teams-list-container" class="col-md-4">
+                        <!-- Team list will be injected here by script.js -->
+                    </div>
+                    <!-- Right Column: Team Details -->
+                    <div id="team-details-container" class="col-md-8">
+                        <!-- Player list for the selected team will be injected here -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Team Details</h5>
+                                <p class="card-text">Select a team from the list to see its players.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Players View -->
+            <div id="players-view" style="display: none;">
+                <button class="btn btn-primary mb-3" id="show-register-player-form">Create Player</button>
+                <ul class="list-group" id="players-list">
+                    <!-- Players list will be rendered here -->
+                </ul>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" style="display: none;">
+                <h2>Settings</h2>
+                <p>This is the settings page. Options will be added here in the future.</p>
+            </div>
+
+            <!-- Register Tournament View (now hidden and shown on demand) -->
+            <div id="register-tournament-view" style="display: none;">
+                <h2 id="tournament-form-title">Register Tournament</h2>
+                <form id="register-tournament-form">
+                    <input type="hidden" id="tournament-id-edit">
+                    <div class="mb-3">
+                        <label for="tournament-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="tournament-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tournament-status-edit" class="form-label">Status</label>
+                        <input type="text" class="form-control" id="tournament-status-edit" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-tournament">Cancel</button>
+                </form>
+            </div>
+
+            <!-- Register Team View (now hidden and shown on demand) -->
+            <div id="register-team-view" style="display: none;">
+                <h2 id="team-form-title">Register Team</h2>
+                <form id="register-team-form" enctype="multipart/form-data">
+                    <input type="hidden" id="team-id-edit">
+                    <div class="mb-3">
+                        <label for="team-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="team-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="team-logo" class="form-label">Logo</label>
+                        <input type="file" class="form-control" id="team-logo" name="logo" accept="image/png, image/jpeg">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-team">Cancel</button>
+                </form>
+            </div>
+
+            <!-- Register Player View (now hidden and shown on demand) -->
+            <div id="register-player-view" style="display: none;">
+                <h2 id="player-form-title">Register Player</h2>
+                <form id="register-player-form">
+                    <input type="hidden" id="player-id-edit">
+                    <div class="mb-3">
+                        <label for="player-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="player-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="player-nickname" class="form-label">Nickname</label>
+                        <input type="text" class="form-control" id="player-nickname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="player-role" class="form-label">Role</label>
+                        <input type="text" class="form-control" id="player-role" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-register-player">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Player to Team Modal -->
+    <div class="modal fade" id="add-player-modal" tabindex="-1" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPlayerModalLabel">Add Player to Team</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select a player to add:</p>
+                    <div id="available-players-list" class="list-group">
+                        <!-- Available players will be rendered here by script.js -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="add-selected-player-button" disabled>Add Selected Player</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Local JS -->
+    <script src="js/script.js"></script>
+</body>
+</html>
