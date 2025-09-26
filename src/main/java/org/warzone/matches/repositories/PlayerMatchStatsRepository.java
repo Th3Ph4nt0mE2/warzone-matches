@@ -8,4 +8,5 @@ public interface PlayerMatchStatsRepository extends JpaRepository<PlayerMatchSta
 
     List<PlayerMatchStats> findByMatch_Tournament_Id(String tournamentId);
 
+    List<PlayerMatchStats> findByMatch_IdMatches(int matchId);
 }

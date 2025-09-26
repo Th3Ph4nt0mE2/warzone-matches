@@ -14,6 +14,9 @@ public class PlayerMatchStatsService {
     @Autowired
     private PlayerMatchStatsRepository playerMatchStatsRepository;
 
+    @Autowired
+    private MatchesService matchesService;
+
     public List<PlayerMatchStats> getAllPlayerMatchStats() {
         return playerMatchStatsRepository.findAll();
     }
@@ -23,7 +26,14 @@ public class PlayerMatchStatsService {
     }
 
     public PlayerMatchStats savePlayerMatchStats(PlayerMatchStats playerMatchStats) {
-        return playerMatchStatsRepository.save(playerMatchStats);
+        PlayerMatchStats savedStats = playerMatchStatsRepository.save(playerMatchStats);
+
+        // After saving the stats, trigger the score update for the associated match.
+        if (savedStats.getMatch() != null) {
+            matchesService.updateMatchScore(savedStats.getMatch().getIdMatches());
+        }
+
+        return savedStats;
     }
 
     public void deletePlayerMatchStats(int id) {
