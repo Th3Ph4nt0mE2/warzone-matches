@@ -6,13 +6,13 @@ public class TeamSummaryDTO {
 
     private int teamId;
     private String teamName;
-    private long totalKills;
+    private double totalPoints;
     private List<String> players;
 
-    public TeamSummaryDTO(int teamId, String teamName, long totalKills, List<String> players) {
+    public TeamSummaryDTO(int teamId, String teamName, double totalPoints, List<String> players) {
         this.teamId = teamId;
         this.teamName = teamName;
-        this.totalKills = totalKills;
+        this.totalPoints = totalPoints;
         this.players = players;
     }
 
@@ -25,12 +25,12 @@ public class TeamSummaryDTO {
         this.teamName = teamName;
     }
 
-    public long getTotalKills() {
-        return totalKills;
+    public double getTotalPoints() {
+        return totalPoints;
     }
 
-    public void setTotalKills(long totalKills) {
-        this.totalKills = totalKills;
+    public void setTotalPoints(double totalPoints) {
+        this.totalPoints = totalPoints;
     }
 
     public List<String> getPlayers() {
