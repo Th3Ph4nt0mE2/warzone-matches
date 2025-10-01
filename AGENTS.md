@@ -23,9 +23,9 @@ A continuación se desglosan las funcionalidades clave:
   - Top 5-8: **1.6x**
   - Top 9-15: **1.0x**
 - **Cálculo del Ranking Final:** La puntuación total de un equipo en el torneo es la **suma de las puntuaciones obtenidas en cada una de las 6 partidas**. El ranking final se ordena de mayor a menor puntuación total.
-- **Implementación Técnica:**
+- **Implementación Técnica (Propuesta):**
   1. La puntuación de cada partida se calcula automáticamente y se guarda en el campo `total` de la entidad `Matches`.
-  2. Este cálculo se dispara en `MatchesService.updateMatchScore()` cada vez que se guarda un registro en `PlayerMatchStats`, asegurando que el total esté siempre sincronizado.
+  2. Este cálculo se dispara cada vez que se guarda un registro en `PlayerMatchStats`.
   3. El endpoint del `summary` simplemente suma estos valores pre-calculados, haciendo el proceso muy eficiente.
 
 ### 3. Clasificación de Jugadores
