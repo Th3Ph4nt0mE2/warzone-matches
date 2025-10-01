@@ -52,7 +52,7 @@ public class MatchesService {
             Matches match = matchOptional.get();
 
             // 1. Calculate total kills for this match
-            int totalKills = playerMatchStatsRepository.findByMatch_IdMatches(matchId).stream()
+            int totalKills = playerMatchStatsRepository.findAllByMatchId(matchId).stream()
                     .mapToInt(stat -> stat.getKills())
                     .sum();
 
